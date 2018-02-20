@@ -7,7 +7,7 @@
  */
 package com.wegas.core.security.persistence;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import com.wegas.core.ejb.GameFacade;
 import com.wegas.core.ejb.GameModelFacade;
 import com.wegas.core.exception.client.WegasIncompatibleType;
@@ -73,13 +73,13 @@ public class Permission extends AbstractEntity {
     /*@ManyToOne
      private AbstractAccount account;*/
     @ManyToOne
-    @JsonIgnore
+    @JsonbTransient
     private User user;
     /**
      *
      */
     @ManyToOne
-    @JsonIgnore
+    @JsonbTransient
     private Role role;
 
     /**

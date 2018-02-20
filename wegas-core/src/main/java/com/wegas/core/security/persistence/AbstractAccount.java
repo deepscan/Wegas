@@ -7,16 +7,15 @@
  */
 package com.wegas.core.security.persistence;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wegas.core.Helper;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
-import com.wegas.core.rest.util.Views;
-import com.wegas.core.security.aai.AaiAccount;
-import com.wegas.core.security.facebook.FacebookAccount;
-import com.wegas.core.security.guest.GuestJpaAccount;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.core.security.util.WegasPermission;
 import java.util.*;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 
 /**
@@ -39,12 +38,6 @@ import javax.persistence.*;
     @NamedQuery(name = "AbstractAccount.findByFullName", query = "SELECT a FROM AbstractAccount a WHERE TYPE(a) != GuestJpaAccount AND LOWER(a.firstname) LIKE LOWER(:firstname) AND LOWER(a.lastname) LIKE LOWER(:lastname)"),
     @NamedQuery(name = "AbstractAccount.findAllNonGuests", query = "SELECT a FROM AbstractAccount a WHERE TYPE(a) != GuestJpaAccount")
 })
-@JsonSubTypes(value = {
-    @JsonSubTypes.Type(name = "AaiAccount", value = AaiAccount.class),
-    @JsonSubTypes.Type(name = "FacebookAccount", value = FacebookAccount.class),
-    @JsonSubTypes.Type(name = "GuestJpaAccount", value = GuestJpaAccount.class),
-    @JsonSubTypes.Type(name = "JpaAccount", value = com.wegas.core.security.jparealm.JpaAccount.class)
-})
 @JsonIgnoreProperties({"passwordConfirm"})
 @Table(indexes = {
     @Index(columnList = "user_id")
@@ -64,7 +57,7 @@ public abstract class AbstractAccount extends AbstractEntity {
      *
      */
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, optional = false)
-    @JsonBackReference(value = "user-account")
+    @JsonbTransient
     private User user;
 
     /**
@@ -95,7 +88,7 @@ public abstract class AbstractAccount extends AbstractEntity {
      */
     @Temporal(TemporalType.TIMESTAMP)
     @Column(columnDefinition = "timestamp with time zone")
-    @JsonIgnore
+    @JsonbTransient
     private Date createdTime = new Date();
 
     /**
@@ -108,7 +101,7 @@ public abstract class AbstractAccount extends AbstractEntity {
     /**
      *
      */
-    @JsonView(Views.ExtendedI.class)
+    @WegasJsonView(Views.ExtendedI.class)
     @Transient
     private Collection<Role> roles = new ArrayList<>();
 
@@ -147,7 +140,7 @@ public abstract class AbstractAccount extends AbstractEntity {
     /**
      * @return the user
      */
-    @JsonIgnore
+    @JsonbTransient
     public User getUser() {
         return user;
     }
@@ -155,7 +148,7 @@ public abstract class AbstractAccount extends AbstractEntity {
     /**
      * @param user the user to set
      */
-    @JsonIgnore
+    @JsonbTransient
     public void setUser(User user) {
         this.user = user;
     }
@@ -233,7 +226,7 @@ public abstract class AbstractAccount extends AbstractEntity {
         }
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public Collection<Role> getDeserialisedRoles() {
         return roles;
     }

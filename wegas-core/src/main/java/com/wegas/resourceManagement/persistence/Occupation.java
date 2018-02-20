@@ -7,14 +7,13 @@
  */
 package com.wegas.resourceManagement.persistence;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.core.security.util.WegasPermission;
 import java.util.Collection;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 
 /**
@@ -22,7 +21,6 @@ import javax.persistence.*;
  * @author Benjamin Gerber <ger.benjamin@gmail.com>
  */
 @Entity
-
 @Table(indexes = {
     @Index(columnList = "variableinstance_id")
 })
@@ -34,7 +32,7 @@ public class Occupation extends AbstractEntity {
      */
     @Id
     @GeneratedValue
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     private Long id;
     /**
      *
@@ -50,7 +48,7 @@ public class Occupation extends AbstractEntity {
      */
     @Lob
     @Basic(fetch = FetchType.EAGER) // CARE, lazy fetch on Basics has some trouble.
-    @JsonView(Views.ExtendedI.class)
+    @WegasJsonView(Views.ExtendedI.class)
     private String description = "";
 
     /**
@@ -58,8 +56,7 @@ public class Occupation extends AbstractEntity {
      */
     @ManyToOne(optional = false)
     @JoinColumn(name = "variableinstance_id", nullable = false)
-    @JsonBackReference
-    @JsonIgnore
+    @JsonbTransient
     private ResourceInstance resourceInstance;
 
     /**
@@ -128,8 +125,7 @@ public class Occupation extends AbstractEntity {
     /**
      * @return the ResourceInstance
      */
-    @JsonBackReference
-    @JsonIgnore
+    @JsonbTransient
     public ResourceInstance getResourceInstance() {
         return resourceInstance;
     }
@@ -137,7 +133,7 @@ public class Occupation extends AbstractEntity {
     /**
      * @param resourceInstance
      */
-    @JsonBackReference
+    @JsonbTransient
     public void setResourceInstance(ResourceInstance resourceInstance) {
         this.resourceInstance = resourceInstance;
     }

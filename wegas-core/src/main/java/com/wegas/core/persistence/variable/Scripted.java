@@ -7,7 +7,7 @@
  */
 package com.wegas.core.persistence.variable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import com.wegas.core.persistence.game.Script;
 import java.util.List;
 
@@ -22,7 +22,7 @@ public interface Scripted {
      *
      * @return List all contained scripts
      */
-    @JsonIgnore
+    @JsonbTransient
     List<Script> getScripts();
 
 }

@@ -7,20 +7,18 @@
  */
 package com.wegas.messaging.persistence;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.DatedEntity;
 import com.wegas.core.persistence.NamedEntity;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.core.security.util.WegasPermission;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 
 /**
@@ -28,12 +26,9 @@ import javax.persistence.*;
  * @author Francois-Xavier Aeberhard (fx at red-agent.com)
  */
 @Entity
-@JsonTypeName(value = "Message")
-
 @Table(indexes = {
     @Index(columnList = "inboxinstance_variableinstance_id")
 })
-
 public class Message extends NamedEntity implements DatedEntity {
 
     private static final long serialVersionUID = 1L;
@@ -42,7 +37,7 @@ public class Message extends NamedEntity implements DatedEntity {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "mcqvarinstrep_seq")
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     private Long id;
     /**
      *
@@ -55,7 +50,7 @@ public class Message extends NamedEntity implements DatedEntity {
     private String token;
 
     @Lob
-    @JsonView(Views.ExtendedI.class)
+    @WegasJsonView(Views.ExtendedI.class)
     @Basic(fetch = FetchType.EAGER) // CARE, lazy fetch on Basics has some trouble.
     private String body;
     /**
@@ -82,7 +77,7 @@ public class Message extends NamedEntity implements DatedEntity {
      *
      */
     @ElementCollection
-    @JsonView(Views.ExtendedI.class)
+    @WegasJsonView(Views.ExtendedI.class)
     private List<String> attachements;
     /**
      *
@@ -94,7 +89,7 @@ public class Message extends NamedEntity implements DatedEntity {
      *
      */
     @ManyToOne(optional = false)
-    @JsonBackReference("inbox-message")
+    @JsonbTransient
     private InboxInstance inboxInstance;
 
     /**
@@ -178,7 +173,7 @@ public class Message extends NamedEntity implements DatedEntity {
     }
 
     @Override
-    @JsonIgnore
+    @JsonbTransient
     public Date getCreatedTime() {
         return this.getTime();
     }
@@ -248,7 +243,7 @@ public class Message extends NamedEntity implements DatedEntity {
     }
 
     @Override
-    @JsonIgnore
+    @JsonbTransient
     public String getName() {
         return this.subject;
     }
@@ -284,7 +279,7 @@ public class Message extends NamedEntity implements DatedEntity {
     /**
      * @return the MCQDescriptor
      */
-    @JsonIgnore
+    @JsonbTransient
     public InboxInstance getInboxInstance() {
         return inboxInstance;
     }

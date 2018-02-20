@@ -7,29 +7,26 @@
  */
 package com.wegas.mcq.persistence;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.Helper;
 import com.wegas.core.ejb.VariableInstanceFacade;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.DatedEntity;
 import com.wegas.core.persistence.variable.Beanjection;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.core.security.util.WegasPermission;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 
 /**
  * @author Francois-Xavier Aeberhard (fx at red-agent.com)
  */
 @Entity
-@JsonTypeName(value = "Reply")
 @Table(name = "MCQReply", indexes = {
     @Index(columnList = "choiceinstance_id"),
     @Index(columnList = "result_id")
@@ -45,7 +42,7 @@ public class Reply extends AbstractEntity implements DatedEntity {
      */
     @Id
     @GeneratedValue
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     private Long id;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -82,7 +79,7 @@ public class Reply extends AbstractEntity implements DatedEntity {
      */
     @ManyToOne(optional = false)
     @JoinColumn(name = "choiceinstance_id", nullable = false)
-    @JsonBackReference
+    @JsonbTransient
     private ChoiceInstance choiceInstance;
 
     /**
@@ -140,8 +137,7 @@ public class Reply extends AbstractEntity implements DatedEntity {
     /**
      * @return the MCQDescriptor
      */
-    @JsonIgnore
-    @JsonBackReference
+    @JsonbTransient
     public ChoiceInstance getChoiceInstance() {
         return choiceInstance;
     }
@@ -149,7 +145,7 @@ public class Reply extends AbstractEntity implements DatedEntity {
     /**
      * @param choiceInstance
      */
-    @JsonBackReference
+    @JsonbTransient
     public void setChoiceInstance(ChoiceInstance choiceInstance) {
         this.choiceInstance = choiceInstance;
     }
@@ -216,7 +212,7 @@ public class Reply extends AbstractEntity implements DatedEntity {
     /**
      * @return the result
      */
-    @JsonIgnore
+    @JsonbTransient
     public Result getResult() {
         return result;
     }

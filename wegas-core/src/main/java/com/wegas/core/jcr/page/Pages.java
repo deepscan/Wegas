@@ -7,16 +7,14 @@
  */
 package com.wegas.core.jcr.page;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.wegas.core.AlphanumericComparator;
-import org.codehaus.jettison.json.JSONException;
-import org.slf4j.LoggerFactory;
-
+import java.util.*;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
-import java.util.*;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Cyril Junod (cyril.junod at gmail.com)
@@ -25,7 +23,7 @@ public class Pages implements AutoCloseable {
 
     static final private org.slf4j.Logger logger = LoggerFactory.getLogger(Pages.class);
 
-    @JsonIgnore
+    @JsonbTransient
     private final PageConnector connector;
 
     /**
@@ -39,7 +37,6 @@ public class Pages implements AutoCloseable {
     /**
      * @return Page index
      * @throws RepositoryException
-     * @throws JSONException
      */
     public List<HashMap<String, String>> getIndex() throws RepositoryException {
         final List<HashMap<String, String>> ret = new LinkedList<>();

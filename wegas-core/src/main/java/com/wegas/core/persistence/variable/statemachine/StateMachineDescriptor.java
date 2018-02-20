@@ -7,16 +7,15 @@
  */
 package com.wegas.core.persistence.variable.statemachine;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
+import com.wegas.core.persistence.WegasJsonTypeName;
 import com.wegas.core.persistence.game.Player;
 import com.wegas.core.persistence.game.Script;
 import com.wegas.core.persistence.variable.Scripted;
 import com.wegas.core.persistence.variable.VariableDescriptor;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import java.util.*;
 import java.util.Map.Entry;
 import javax.persistence.*;
@@ -26,11 +25,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "FSMDescriptor")
-@JsonTypeName(value = "FSMDescriptor")
-@JsonSubTypes(value = {
-        @JsonSubTypes.Type(name = "TriggerDescriptor", value = TriggerDescriptor.class),
-        @JsonSubTypes.Type(name = "DialogueDescriptor", value = DialogueDescriptor.class)
-})
+@WegasJsonTypeName("FSMDescriptor")
 @NamedQueries(
         @NamedQuery(
                 name = "StateMachineDescriptor.findAllForGameModelId",
@@ -46,7 +41,7 @@ public class StateMachineDescriptor extends VariableDescriptor<StateMachineInsta
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "statemachine_id", referencedColumnName = "variabledescriptor_id")
     @MapKeyColumn(name = "fsm_statekey")
-    @JsonView(Views.ExtendedI.class)
+    @WegasJsonView(Views.ExtendedI.class)
     private Map<Long, State> states = new HashMap<>();
 
     /**

@@ -7,7 +7,6 @@
  */
 package com.wegas.core.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wegas.core.Helper;
 import com.wegas.core.ejb.GameFacade;
 import com.wegas.core.ejb.GameModelFacade;
@@ -30,15 +29,14 @@ import com.wegas.core.persistence.variable.scope.GameScope;
 import com.wegas.core.persistence.variable.statemachine.State;
 import com.wegas.core.persistence.variable.statemachine.StateMachineDescriptor;
 import com.wegas.core.persistence.variable.statemachine.Transition;
-import com.wegas.core.rest.util.JacksonMapperProvider;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.rest.util.JsonbProvider;
+import com.wegas.core.persistence.views.Views;
 import com.wegas.mcq.persistence.ChoiceDescriptor;
 import com.wegas.mcq.persistence.Result;
 import com.wegas.resourceManagement.ejb.ResourceFacade;
 import com.wegas.resourceManagement.persistence.Occupation;
 import com.wegas.resourceManagement.persistence.ResourceDescriptor;
 import com.wegas.resourceManagement.persistence.ResourceInstance;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -51,6 +49,7 @@ import java.util.logging.Level;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.json.bind.Jsonb;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -367,27 +366,23 @@ public class UpdateController {
 
     private String newScope(GameModel gameModel, VariableDescriptor vd) {
         StringBuilder sb = new StringBuilder();
-        try {
-            descriptorFacade.detach(vd);
-            String name = vd.getName();
-            String parentName = vd.getParentList().getName();
+        descriptorFacade.detach(vd);
+        String name = vd.getName();
+        String parentName = vd.getParentList().getName();
 
-            GameModelScope scope = new GameModelScope();
-            scope.setBroadcastScope("GameScope");
-            vd.setScope(scope);
-            String json = vd.toJson(Views.Export.class);
-            logger.error("JSON for {}/{} variable: ", parentName, name, json);
+        GameModelScope scope = new GameModelScope();
+        scope.setBroadcastScope("GameScope");
+        vd.setScope(scope);
+        String json = vd.toJson(Views.Export.class);
+        logger.error("JSON for {}/{} variable: ", parentName, name, json);
 
-            descriptorFacade.remove(vd.getId());
-            descriptorFacade.flush();
+        descriptorFacade.remove(vd.getId());
+        descriptorFacade.flush();
 
-            logger.error("REMOVED");
+        logger.error("REMOVED");
 
-            sb.append("NAME: ").append(name).append(" -> ").append(this.addVariable(gameModel, json, name, parentName));
+        sb.append("NAME: ").append(name).append(" -> ").append(this.addVariable(gameModel, json, name, parentName));
 
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(UpdateController.class.getName()).log(Level.SEVERE, null, ex);
-        }
         return sb.toString();
     }
 
@@ -428,7 +423,7 @@ public class UpdateController {
     }
 
     private String addVariable(GameModel gm, String json, String varName, String parentName) {
-        ObjectMapper mapper = JacksonMapperProvider.getMapper();
+        Jsonb mapper = JsonbProvider.getMapper(null);
         logger.error("Going to add {}/{} variable", parentName, varName);
 
         try {
@@ -449,16 +444,13 @@ public class UpdateController {
             return "parent not found";
         }
         try {
-            VariableDescriptor vd = mapper.readValue(json, VariableDescriptor.class);
+            VariableDescriptor vd = mapper.fromJson(json, VariableDescriptor.class);
             descriptorController.createChild(gm.getId(), parentName, vd);
             descriptorFacade.flush();
             return "OK";
         } catch (WegasNotFoundException ex) {
             logger.error("Error white adding the variable : parent {} not found", parentName);
             return "Parent (2) not found";
-        } catch (IOException ex) {
-            logger.error("Error While Reading JSON: {}", json);
-            return "JSON Error";
         }
     }
 

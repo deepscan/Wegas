@@ -7,7 +7,7 @@
  */
 package com.wegas.core.persistence.variable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wegas.core.persistence.ListUtils;
 import com.wegas.core.persistence.VariableProperty;
@@ -30,7 +30,7 @@ public interface Propertable {
      */
     public List<VariableProperty> getInternalProperties();
 
-    @JsonIgnore
+    @JsonbTransient
     default public Map<String, String> getModifiableProperties() {
         return ListUtils.mapEntries(getInternalProperties(), new VariableProperty.Extractor());
     }

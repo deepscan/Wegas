@@ -7,17 +7,16 @@
  */
 package com.wegas.reviewing.persistence.evaluation;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.variable.Beanjection;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.core.security.util.WegasPermission;
 import com.wegas.reviewing.ejb.ReviewingFacade;
 import com.wegas.reviewing.persistence.Review;
 import java.util.Collection;
 import java.util.Objects;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 
 /**
@@ -34,11 +33,6 @@ import javax.persistence.*;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@JsonSubTypes(value = {
-    @JsonSubTypes.Type(value = TextEvaluationInstance.class),
-    @JsonSubTypes.Type(value = CategorizedEvaluationInstance.class),
-    @JsonSubTypes.Type(value = GradeInstance.class)
-})
 @Table(
         indexes = {
             @Index(columnList = "evaluationdescriptor_id"),
@@ -51,7 +45,7 @@ public abstract class EvaluationInstance extends AbstractEntity {
 
     @Id
     @GeneratedValue
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     private Long id;
 
     /**
@@ -59,7 +53,7 @@ public abstract class EvaluationInstance extends AbstractEntity {
      * otherwise
      */
     @ManyToOne
-    @JsonIgnore
+    @JsonbTransient
     private Review feedbackReview;
 
     /**
@@ -67,7 +61,7 @@ public abstract class EvaluationInstance extends AbstractEntity {
      * otherwise
      */
     @ManyToOne
-    @JsonIgnore
+    @JsonbTransient
     private Review commentsReview;
 
     /**
@@ -163,7 +157,7 @@ public abstract class EvaluationInstance extends AbstractEntity {
      *
      * @return commentsReview if not null, feedbackReview otherwise
      */
-    @JsonIgnore
+    @JsonbTransient
     public Review getEffectiveReview() {
         if (this.getCommentsReview() != null) {
             return this.getCommentsReview();
@@ -178,7 +172,7 @@ public abstract class EvaluationInstance extends AbstractEntity {
      *
      * @return return the parent or NULL if it's not a review comment evaluation
      */
-    @JsonIgnore
+    @JsonbTransient
     public Review getCommentsReview() {
         return this.commentsReview;
     }
@@ -198,7 +192,7 @@ public abstract class EvaluationInstance extends AbstractEntity {
      *
      * @return return the parent or NULL if it's not a feedback evaluation
      */
-    @JsonIgnore
+    @JsonbTransient
     public Review getFeedbackReview() {
         return feedbackReview;
     }

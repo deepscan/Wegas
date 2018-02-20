@@ -7,8 +7,6 @@
  */
 package com.wegas.core.persistence.variable.scope;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.wegas.core.Helper;
 import com.wegas.core.ejb.RequestFacade;
 import com.wegas.core.ejb.VariableInstanceFacade;
@@ -24,6 +22,7 @@ import com.wegas.core.persistence.variable.VariableDescriptor;
 import com.wegas.core.persistence.variable.VariableInstance;
 import com.wegas.core.security.util.WegasPermission;
 import java.util.Collection;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +33,6 @@ import org.slf4j.LoggerFactory;
  * @author Francois-Xavier Aeberhard (fx at red-agent.com)
  */
 @Entity // Database serialization
-@JsonSubTypes(value = {
-    @JsonSubTypes.Type(name = "GameModelScope", value = GameModelScope.class),
-    @JsonSubTypes.Type(name = "GameScope", value = GameScope.class),
-    @JsonSubTypes.Type(name = "TeamScope", value = TeamScope.class),
-    @JsonSubTypes.Type(name = "PlayerScope", value = PlayerScope.class)
-})
 @Table(indexes = {
     @Index(columnList = "variableinstance_variableinstance_id"),
     @Index(columnList = "variabledescriptor_variabledescriptor_id")
@@ -63,11 +56,11 @@ abstract public class AbstractScope<T extends InstanceOwner> extends AbstractEnt
      * replace JPA OneToMany relationship management
      * <p>
      */
-    @JsonIgnore
+    @JsonbTransient
     @Transient
     private VariableInstanceFacade variableInstanceFacade;
 
-    @JsonIgnore
+    @JsonbTransient
     @Transient
     private Beanjection beans;
 
@@ -82,13 +75,12 @@ abstract public class AbstractScope<T extends InstanceOwner> extends AbstractEnt
      *
      */
     @OneToOne
-    //@JsonBackReference
+    @JsonbTransient
     private VariableDescriptor variableDescriptor;
 
     /**
      *
      */
-    //@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@class")
     private String broadcastScope = PlayerScope.class.getSimpleName();
 
     /**
@@ -161,7 +153,7 @@ abstract public class AbstractScope<T extends InstanceOwner> extends AbstractEnt
      * @deprecated
      */
     @Deprecated
-    @JsonIgnore
+    @JsonbTransient
     public VariableInstance getInstance() {
         return this.getVariableInstance(this.lookupPlayer());
     }
@@ -230,8 +222,7 @@ abstract public class AbstractScope<T extends InstanceOwner> extends AbstractEnt
      * @return the variable descriptor
      */
     // @fixme here we cannot use the back-reference on an abstract reference
-    //@JsonBackReference
-    @JsonIgnore
+    @JsonbTransient
     public VariableDescriptor getVariableDescriptor() {
         return this.variableDescriptor;
     }
@@ -239,7 +230,6 @@ abstract public class AbstractScope<T extends InstanceOwner> extends AbstractEnt
     /**
      * @param varDesc
      */
-    //@JsonBackReference
     public void setVariableDescscriptor(VariableDescriptor varDesc) {
         this.variableDescriptor = varDesc;
     }
@@ -248,7 +238,7 @@ abstract public class AbstractScope<T extends InstanceOwner> extends AbstractEnt
      * @return the scope id
      */
     @Override
-    @JsonIgnore
+    @JsonbTransient
     public Long getId() {
         return this.id;
     }

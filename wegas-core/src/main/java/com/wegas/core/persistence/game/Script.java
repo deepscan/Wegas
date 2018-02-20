@@ -7,23 +7,21 @@
  */
 package com.wegas.core.persistence.game;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.wegas.core.Helper;
+import com.wegas.core.persistence.JsonSerializable;
 import com.wegas.core.persistence.variable.Searchable;
-
-import javax.persistence.Embeddable;
-import javax.persistence.Lob;
 import java.io.Serializable;
 import java.util.List;
+import javax.json.bind.annotation.JsonbTransient;
+import javax.persistence.Embeddable;
+import javax.persistence.Lob;
 
 /**
  *
  * @author Francois-Xavier Aeberhard (fx at red-agent.com)
  */
 @Embeddable
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public class Script implements Serializable, Searchable {
+public class Script implements Serializable, Searchable, JsonSerializable {
 
     private static final long serialVersionUID = 1L;
     /**
@@ -34,7 +32,7 @@ public class Script implements Serializable, Searchable {
     /**
      *
      */
-    @JsonIgnore
+    @JsonbTransient
     private String lang = "JavaScript";
 
     /**

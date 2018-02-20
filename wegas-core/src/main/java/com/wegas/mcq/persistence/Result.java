@@ -7,10 +7,6 @@
  */
 package com.wegas.mcq.persistence;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.Helper;
 import com.wegas.core.ejb.VariableInstanceFacade;
 import com.wegas.core.exception.client.WegasIncompatibleType;
@@ -21,18 +17,19 @@ import com.wegas.core.persistence.game.Script;
 import com.wegas.core.persistence.variable.Beanjection;
 import com.wegas.core.persistence.variable.Scripted;
 import com.wegas.core.persistence.variable.Searchable;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.core.security.util.WegasPermission;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 
 /**
  * @author Francois-Xavier Aeberhard (fx at red-agent.com)
  */
 @Entity
-@JsonTypeName(value = "Result")
 @Table(
         name = "MCQResult",
         uniqueConstraints = {
@@ -66,7 +63,7 @@ public class Result extends NamedEntity implements Searchable, Scripted, Labelle
      */
     @Id
     @GeneratedValue
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     private Long id;
     /**
      * Internal Name
@@ -82,7 +79,7 @@ public class Result extends NamedEntity implements Searchable, Scripted, Labelle
      */
     @Lob
     @Basic(fetch = FetchType.EAGER) // CARE, lazy fetch on Basics has some trouble.
-    //@JsonView(Views.ExtendedI.class)
+    //@WegasJsonView(Views.ExtendedI.class)
     private String answer;
 
     /**
@@ -90,7 +87,7 @@ public class Result extends NamedEntity implements Searchable, Scripted, Labelle
      */
     @Lob
     @Basic(fetch = FetchType.EAGER) // CARE, lazy fetch on Basics has some trouble.
-    //@JsonView(Views.ExtendedI.class)
+    //@WegasJsonView(Views.ExtendedI.class)
     private String ignorationAnswer;
 
     /*
@@ -102,7 +99,7 @@ public class Result extends NamedEntity implements Searchable, Scripted, Labelle
      *
      */
     @Embedded
-    @JsonView(Views.EditorI.class)
+    @WegasJsonView(Views.EditorI.class)
     private Script impact;
     /**
      *
@@ -114,13 +111,13 @@ public class Result extends NamedEntity implements Searchable, Scripted, Labelle
         @AttributeOverride(name = "lang", column
                 = @Column(name = "ignoration_language"))
     })
-    @JsonView(Views.EditorI.class)
+    @WegasJsonView(Views.EditorI.class)
     private Script ignorationImpact;
     /**
      *
      */
     @ManyToOne
-    @JsonBackReference
+    @JsonbTransient
     @JoinColumn(name = "choicedescriptor_id")
     private ChoiceDescriptor choiceDescriptor;
 
@@ -129,7 +126,7 @@ public class Result extends NamedEntity implements Searchable, Scripted, Labelle
      */
     /*
       @OneToOne(mappedBy = "result", cascade = CascadeType.ALL, orphanRemoval = true)
-      @JsonIgnore
+      @JsonbTransient
       private CurrentResult currentResult;
      */
     /**
@@ -137,7 +134,7 @@ public class Result extends NamedEntity implements Searchable, Scripted, Labelle
      */
     /*
     @OneToOne(mappedBy = "result", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @JsonbTransient
     private Replies replies;
      */
     /**
@@ -226,7 +223,7 @@ public class Result extends NamedEntity implements Searchable, Scripted, Labelle
     /**
      * @return the choiceDescriptor
      */
-    @JsonIgnore
+    @JsonbTransient
     public ChoiceDescriptor getChoiceDescriptor() {
         return choiceDescriptor;
     }
@@ -241,7 +238,7 @@ public class Result extends NamedEntity implements Searchable, Scripted, Labelle
     /**
      * @return id from the parent choice descriptor
      */
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     public Long getChoiceDescriptorId() {
         return choiceDescriptor.getId();
     }
@@ -355,7 +352,7 @@ public class Result extends NamedEntity implements Searchable, Scripted, Labelle
     /**
      * @return the choiceInstances
      *
-     * @JsonIgnore
+     * @JsonbTransient
      * public List<ChoiceInstance> getChoiceInstances() {
      * return currentResult.getChoiceInstances();
      * }

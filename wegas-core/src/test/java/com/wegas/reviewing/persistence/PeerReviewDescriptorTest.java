@@ -7,12 +7,10 @@
  */
 package com.wegas.reviewing.persistence;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.wegas.core.persistence.variable.primitive.NumberDescriptor;
 import com.wegas.core.persistence.variable.primitive.NumberInstance;
-import com.wegas.core.rest.util.JacksonMapperProvider;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.rest.util.JsonbProvider;
+import com.wegas.core.persistence.views.Views;
 import com.wegas.reviewing.persistence.evaluation.CategorizedEvaluationDescriptor;
 import com.wegas.reviewing.persistence.evaluation.EvaluationDescriptor;
 import com.wegas.reviewing.persistence.evaluation.EvaluationDescriptorContainer;
@@ -22,6 +20,7 @@ import com.wegas.test.arquillian.AbstractArquillianTest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.json.bind.Jsonb;
 import javax.naming.NamingException;
 import org.junit.After;
 import org.junit.Assert;
@@ -39,8 +38,7 @@ public class PeerReviewDescriptorTest extends AbstractArquillianTest {
 
     private static final Logger logger = LoggerFactory.getLogger(PeerReviewDescriptorTest.class);
 
-    ObjectMapper mapper;
-    ObjectWriter exportMapper;
+    Jsonb jsonb;
 
     NumberDescriptor toBeReviewed;
 
@@ -61,8 +59,7 @@ public class PeerReviewDescriptorTest extends AbstractArquillianTest {
     @Before
     public void setUpInstances() throws NamingException {
 
-        mapper = JacksonMapperProvider.getMapper();
-        exportMapper = mapper.writerWithView(Views.Export.class);
+        jsonb = JsonbProvider.getMapper(Views.Export.class);
 
         toBeReviewed = new NumberDescriptor(VAR_NAME);
         toBeReviewed.setDefaultInstance(new NumberInstance(0));
@@ -142,9 +139,9 @@ public class PeerReviewDescriptorTest extends AbstractArquillianTest {
     public void testSerialise() throws IOException {
         requestFacade.setPlayer(player.getId());
 
-        String json = exportMapper.writeValueAsString(initial);
+        String json = jsonb.toJson(initial);
 
-        PeerReviewDescriptor read = mapper.readValue(json, PeerReviewDescriptor.class);
+        PeerReviewDescriptor read = jsonb.fromJson(json, PeerReviewDescriptor.class);
 
         assertEquals("Name", initial.getName(), read.getName());
         assertEquals("Comments", initial.getComments(), read.getComments());
@@ -159,12 +156,12 @@ public class PeerReviewDescriptorTest extends AbstractArquillianTest {
     public void deserialize() throws IOException {
         String json = "{ \"@class\": \"PeerReviewDescriptor\", \"id\": \"\", \"label\": \"rr\", \"toReviewName\": \"x\", \"name\": \"\", \"maxNumberOfReview\": 3, \"feedback\": { \"@class\": \"EvaluationDescriptorContainer\" }, \"fbComments\": { \"@class\": \"EvaluationDescriptorContainer\" }, \"defaultInstance\": { \"@class\": \"PeerReviewInstance\", \"id\": \"\" }, \"comments\": \"\", \"scope\": { \"@class\": \"TeamScope\", \"broadcastScope\": \"TeamScope\" } }";
 
-        PeerReviewDescriptor read = mapper.readValue(json, PeerReviewDescriptor.class);
+        PeerReviewDescriptor read = jsonb.fromJson(json, PeerReviewDescriptor.class);
         Assert.assertEquals("Deserialised ReviewName not match", VAR_NAME, read.getToReviewName());// transient field
         variableDescriptorFacade.create(scenario.getId(), read);
         Assert.assertEquals("Deserialised ReviewName not match", VAR_NAME, read.getToReviewName()); // through toReview var
 
-        String json2 = exportMapper.writeValueAsString(read);
+        String json2 = jsonb.toJson(read);
     }
 
     @Test

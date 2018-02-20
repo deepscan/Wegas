@@ -8,7 +8,7 @@
 package com.wegas.core.jcr.content;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +22,7 @@ import java.util.zip.ZipEntry;
  */
 abstract public class AbstractContentDescriptor {
 
-    @JsonIgnore
+    @JsonbTransient
     static final private org.slf4j.Logger logger = LoggerFactory.getLogger(AbstractContentDescriptor.class);
 
     /**
@@ -41,7 +41,7 @@ abstract public class AbstractContentDescriptor {
         }
     }
 
-    @JsonIgnore
+    @JsonbTransient
     private boolean synched = false;
     /**
      *
@@ -54,12 +54,12 @@ abstract public class AbstractContentDescriptor {
     /**
      *
      */
-    @JsonIgnore
+    @JsonbTransient
     protected String fileSystemAbsolutePath;
     /**
      *
      */
-    @JsonIgnore
+    @JsonbTransient
     protected ContentConnector connector;
 
     /**
@@ -145,7 +145,7 @@ abstract public class AbstractContentDescriptor {
     /**
      * @return full path
      */
-    @JsonIgnore
+    @JsonbTransient
     public String getFullPath() {
         String p = fileSystemAbsolutePath;
         if (this.isDirectory() && !p.endsWith("/")) {
@@ -186,7 +186,7 @@ abstract public class AbstractContentDescriptor {
     /**
      * @return true if is synched
      */
-    @JsonIgnore
+    @JsonbTransient
     public boolean isSynched() {
         return synched;
     }
@@ -195,7 +195,7 @@ abstract public class AbstractContentDescriptor {
      * @return truc if node exists
      * @throws RepositoryException
      */
-    @JsonIgnore
+    @JsonbTransient
     public boolean exist() throws RepositoryException {
         return connector.nodeExist(fileSystemAbsolutePath);
     }
@@ -204,7 +204,7 @@ abstract public class AbstractContentDescriptor {
      * @return true is this has children
      * @throws RepositoryException
      */
-    @JsonIgnore
+    @JsonbTransient
     public boolean hasChildren() throws RepositoryException {
         return connector.getNode(fileSystemAbsolutePath).hasNodes();
     }
@@ -234,7 +234,7 @@ abstract public class AbstractContentDescriptor {
      * @return the child
      * @throws RepositoryException
      */
-    @JsonIgnore
+    @JsonbTransient
     public AbstractContentDescriptor addChild(AbstractContentDescriptor file) throws RepositoryException {
         Node parent = connector.getNode(fileSystemAbsolutePath);
         parent.addNode(file.getName());
@@ -253,7 +253,7 @@ abstract public class AbstractContentDescriptor {
      * @param force
      * @throws RepositoryException
      */
-    @JsonIgnore
+    @JsonbTransient
     public void delete(boolean force) throws RepositoryException {
         if (this.exist()) {
             if (!this.hasChildren() || force) {
@@ -267,7 +267,7 @@ abstract public class AbstractContentDescriptor {
     /**
      * @throws RepositoryException
      */
-    @JsonIgnore
+    @JsonbTransient
     public void getContentFromRepository() throws RepositoryException {
         this.mimeType = connector.getMimeType(fileSystemAbsolutePath);
         this.note = connector.getNote(fileSystemAbsolutePath);
@@ -277,7 +277,7 @@ abstract public class AbstractContentDescriptor {
     /**
      * @throws RepositoryException
      */
-    @JsonIgnore
+    @JsonbTransient
     public void setContentToRepository() throws RepositoryException {
         connector.setMimeType(fileSystemAbsolutePath, mimeType);
         connector.setNote(fileSystemAbsolutePath, note);
@@ -288,7 +288,7 @@ abstract public class AbstractContentDescriptor {
     /**
      * @throws RepositoryException
      */
-    @JsonIgnore
+    @JsonbTransient
     public void saveToRepository() throws RepositoryException {
         String parentPath = this.getPath();
         AbstractContentDescriptor parent = DescriptorFactory.getDescriptor(parentPath, connector);
@@ -298,7 +298,7 @@ abstract public class AbstractContentDescriptor {
     /**
      * @return 
      */
-    @JsonIgnore
+    @JsonbTransient
     protected ZipEntry getZipEntry() {
         String fullPath = this.getFullPath();
         if (fullPath.startsWith("/")) { // ZIP entry shouldn't be absolute.
@@ -312,7 +312,7 @@ abstract public class AbstractContentDescriptor {
      *
      * @param absolutePath
      */
-    @JsonIgnore
+    @JsonbTransient
     private void parseAbsolutePath(String absolutePath) {
 //        absolutePath = absolutePath.replaceAll(WFSConfig.WeGAS_FILE_SYSTEM_PREFIX, "");
         if (!absolutePath.startsWith("/")) {
@@ -336,7 +336,7 @@ abstract public class AbstractContentDescriptor {
     /**
      * Convert name and path to a fileSystemAbsolutePath
      */
-    @JsonIgnore
+    @JsonbTransient
     private void buildNamespaceAbsolutePath() {
         if (this.path.equals("/")) {
             this.fileSystemAbsolutePath = "/" + this.name;

@@ -7,9 +7,6 @@
  */
 package com.wegas.core.persistence.variable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.Broadcastable;
 import com.wegas.core.persistence.InstanceOwner;
@@ -17,23 +14,16 @@ import com.wegas.core.persistence.game.Game;
 import com.wegas.core.persistence.game.GameModel;
 import com.wegas.core.persistence.game.Player;
 import com.wegas.core.persistence.game.Team;
-import com.wegas.core.persistence.variable.primitive.*;
 import com.wegas.core.persistence.variable.scope.*;
-import com.wegas.core.persistence.variable.statemachine.StateMachineInstance;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.core.security.util.WegasPermission;
-import com.wegas.mcq.persistence.ChoiceInstance;
-import com.wegas.mcq.persistence.QuestionInstance;
-import com.wegas.messaging.persistence.InboxInstance;
-import com.wegas.resourceManagement.persistence.BurndownInstance;
-import com.wegas.resourceManagement.persistence.ResourceInstance;
-import com.wegas.resourceManagement.persistence.TaskInstance;
-import com.wegas.reviewing.persistence.PeerReviewInstance;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 import org.eclipse.persistence.annotations.CacheIndex;
 import org.eclipse.persistence.annotations.CacheIndexes;
@@ -109,24 +99,6 @@ import org.slf4j.LoggerFactory;
     @Index(columnList = "gamemodelvariableinstances_key")
 })
 //@JsonIgnoreProperties(value={"descriptorId"})
-@JsonSubTypes(value = {
-    @JsonSubTypes.Type(name = "StringInstance", value = StringInstance.class),
-    @JsonSubTypes.Type(name = "TextInstance", value = TextInstance.class),
-    @JsonSubTypes.Type(name = "BooleanInstance", value = BooleanInstance.class),
-    @JsonSubTypes.Type(name = "ListInstance", value = ListInstance.class),
-    @JsonSubTypes.Type(name = "NumberInstance", value = NumberInstance.class),
-    @JsonSubTypes.Type(name = "InboxInstance", value = InboxInstance.class),
-    @JsonSubTypes.Type(name = "FSMInstance", value = StateMachineInstance.class),
-
-    @JsonSubTypes.Type(name = "QuestionInstance", value = QuestionInstance.class),
-    @JsonSubTypes.Type(name = "ChoiceInstance", value = ChoiceInstance.class),
-    @JsonSubTypes.Type(name = "ResourceInstance", value = ResourceInstance.class),
-    @JsonSubTypes.Type(name = "TaskInstance", value = TaskInstance.class),
-    @JsonSubTypes.Type(name = "ObjectInstance", value = ObjectInstance.class),
-    @JsonSubTypes.Type(name = "PeerReviewInstance", value = PeerReviewInstance.class),
-
-    @JsonSubTypes.Type(name = "BurndownInstance", value = BurndownInstance.class)
-})
 @OptimisticLocking(cascade = true)
 //@Cacheable(false)
 abstract public class VariableInstance extends AbstractEntity implements Broadcastable {
@@ -153,14 +125,14 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
     @Id
     @Column(name = "variableinstance_id")
     @GeneratedValue
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     private Long id;
 
     /**
      *
      */
     @ManyToOne
-    @JsonIgnore
+    @JsonbTransient
     @JoinColumn(name = "gamescope_id")
     private GameScope gameScope;
 
@@ -168,7 +140,7 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
      *
      */
     @ManyToOne
-    @JsonIgnore
+    @JsonbTransient
     @JoinColumn(name = "teamscope_id")
     private TeamScope teamScope;
 
@@ -176,7 +148,7 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
      *
      */
     @ManyToOne
-    @JsonIgnore
+    @JsonbTransient
     @JoinColumn(name = "playerscope_id")
     private PlayerScope playerScope;
 
@@ -184,13 +156,13 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
      *
      */
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "variableInstance")
-    @JsonIgnore
+    @JsonbTransient
     private GameModelScope gameModelScope;
     /**
      *
      */
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "defaultInstance")
-    @JsonIgnore
+    @JsonbTransient
     private VariableDescriptor defaultDescriptor;
 
     /**
@@ -203,7 +175,7 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
      */
     @JoinColumn(name = "variableinstances_key")
     @ManyToOne
-    @JsonIgnore
+    @JsonbTransient
     private Player player;
     /**
      *
@@ -215,12 +187,12 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
      */
     @JoinColumn(name = "gamevariableinstances_key")
     @ManyToOne
-    @JsonIgnore
+    @JsonbTransient
     private Game game;
 
     @JoinColumn(name = "gamemodelvariableinstances_key")
     @ManyToOne
-    @JsonIgnore
+    @JsonbTransient
     private GameModel gameModel;
 
     /**
@@ -233,7 +205,7 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
      */
     @JoinColumn(name = "teamvariableinstances_key")
     @ManyToOne
-    @JsonIgnore
+    @JsonbTransient
     private Team team;
 
     @Override
@@ -246,7 +218,7 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
      *
      * @return effective instance owner, but null for default ones
      */
-    @JsonIgnore
+    @JsonbTransient
     public InstanceOwner getOwner() {
         if (isDefaultInstance()) {
             return null;
@@ -270,7 +242,7 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
      *
      * @return effective instance owner or the gameModel for default ones
      */
-    @JsonIgnore
+    @JsonbTransient
     public InstanceOwner getEffectiveOwner() {
         if (this.getTeam() != null) {
             return this.getTeam();
@@ -289,7 +261,7 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
      *
      * @return
      */
-    @JsonIgnore
+    @JsonbTransient
     public String getAudience() {
         InstanceOwner audienceOwner = getBroadcastTarget();
         if (audienceOwner != null) {
@@ -299,7 +271,7 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
         }
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public InstanceOwner getBroadcastTarget() {
         if (this.getTeam() != null) {
             if (this.getTeamScope().getBroadcastScope().equals("GameScope")) {
@@ -353,8 +325,7 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
     /**
      * @return the scope
      */
-    @JsonIgnore
-    //@JsonView(Views.ExtendedI.class)
+    @JsonbTransient
     public AbstractScope getScope() {
         if (this.getTeamScope() != null) {
             return this.getTeamScope();
@@ -368,7 +339,6 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
             return null;
         }
     }
-    //@JsonView(Views.ExtendedI.class)
 
     public Long getScopeKey() {
         if (this.getTeamScope() != null) {
@@ -397,7 +367,7 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
      *
      * @return the descriptor or null if this is a default instance
      */
-    @JsonIgnore
+    @JsonbTransient
     public VariableDescriptor getDescriptor() {
         if (this.isDefaultInstance()) {
             return null;
@@ -412,7 +382,7 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
      *
      * @return descriptor id
      */
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     public Long getDescriptorId() {
         return this.findDescriptor().getId();
     }
@@ -484,7 +454,7 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
      *
      * @return team's id or null if instance is not a team instance
      *
-     * @JsonIgnore public Long getTeamScopeKey() { return teamScopeKey; }
+     * @JsonbTransient public Long getTeamScopeKey() { return teamScopeKey; }
      */
     /**
      * @param teamScopeKey public void setTeamScopeKey(Long teamScopeKey) {
@@ -495,13 +465,13 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
      *
      * @return player's id or null if this is not a player instance
      *
-     * @JsonIgnore public Long getPlayerScopeKey() { return playerScopeKey; }
+     * @JsonbTransient public Long getPlayerScopeKey() { return playerScopeKey; }
      */
     /**
      *
      * @return the gameScope or null if this instance doesn't belong to a game
      */
-    @JsonIgnore
+    @JsonbTransient
     public GameScope getGameScope() {
         return gameScope;
     }
@@ -517,7 +487,7 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
     /**
      * @param gameScope the gameScope to set
      */
-    @JsonIgnore
+    @JsonbTransient
     public void setGameScope(GameScope gameScope) {
         this.gameScope = gameScope;
     }
@@ -526,7 +496,7 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
      * @return the team or null if this instance doesn't belong to a team
      *         (belonging to the game for instance)
      */
-    @JsonIgnore
+    @JsonbTransient
     public TeamScope getTeamScope() {
         return teamScope;
     }
@@ -534,7 +504,7 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
     /**
      * @param teamScope the teamScope to set
      */
-    @JsonIgnore
+    @JsonbTransient
     public void setTeamScope(TeamScope teamScope) {
         this.teamScope = teamScope;
     }
@@ -542,7 +512,7 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
     /**
      * @return the playerScope
      */
-    @JsonIgnore
+    @JsonbTransient
     public PlayerScope getPlayerScope() {
         return playerScope;
     }
@@ -550,7 +520,7 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
     /**
      * @param playerScope the playerScope to set
      */
-    @JsonIgnore
+    @JsonbTransient
     public void setPlayerScope(PlayerScope playerScope) {
         this.playerScope = playerScope;
     }
@@ -562,7 +532,7 @@ abstract public class VariableInstance extends AbstractEntity implements Broadca
         return defaultDescriptor;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public boolean isDefaultInstance() {
         //instance without scope meads default instance
         return this.getScope() == null;

@@ -7,19 +7,18 @@
  */
 package com.wegas.core.persistence.variable.statemachine;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wegas.core.Helper;
+import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
+import com.wegas.core.persistence.EntityComparators;
 import com.wegas.core.persistence.variable.VariableInstance;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.wegas.core.Helper;
-import com.wegas.core.exception.client.WegasIncompatibleType;
-import com.wegas.core.persistence.EntityComparators;
+import com.wegas.core.persistence.WegasJsonTypeName;
 
 /**
  *
@@ -33,10 +32,7 @@ import com.wegas.core.persistence.EntityComparators;
 )
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Access(AccessType.FIELD)
-@JsonTypeName(value = "FSMInstance")
-@JsonSubTypes(value = {
-    @JsonSubTypes.Type(name = "TriggerInstance", value = TriggerInstance.class)
-})
+@WegasJsonTypeName("FSMInstance")
 public class StateMachineInstance extends VariableInstance {
 
     private static final long serialVersionUID = 1L;
@@ -55,7 +51,7 @@ public class StateMachineInstance extends VariableInstance {
      */
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "transitionHistory")
-    @JsonIgnore
+    @JsonbTransient
     private List<TransitionHistoryEntry> transitionHistory = new ArrayList<>();
 
     /**
@@ -78,7 +74,7 @@ public class StateMachineInstance extends VariableInstance {
      *
      * @param state
      */
-    @JsonIgnore
+    @JsonbTransient
     public void setCurrentState(State state) {
         //Not meant to be used
     }
@@ -115,7 +111,7 @@ public class StateMachineInstance extends VariableInstance {
 
     /**
      *
-     * @return list of walked transitions 
+     * @return list of walked transitions
      */
     @JsonProperty
     public List<Long> getTransitionHistory() {

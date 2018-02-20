@@ -7,10 +7,9 @@
  */
 package com.wegas.core.rest.util;
 
+import javax.ws.rs.ApplicationPath;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
-
-import javax.ws.rs.ApplicationPath;
 
 /**
  * @author Maxence Laurent (maxence.laurent at gmail.com)
@@ -20,7 +19,7 @@ public class ApplicationConfig extends ResourceConfig {
 
     public ApplicationConfig() {
 
-        register(com.wegas.core.rest.util.JacksonFeature.class);
+        //register(com.wegas.core.rest.util.JacksonFeature.class);
         register(MultiPartFeature.class);
 
         // register REST controllers from those packages :

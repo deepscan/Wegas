@@ -7,22 +7,17 @@
  */
 package com.wegas.resourceManagement.persistence;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.security.util.WegasPermission;
 import java.util.Collection;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.Transient;
 
 /**
  *
  * @author Benjamin
  */
-@JsonSubTypes(value = {
-    @JsonSubTypes.Type(name = "Activity", value = Activity.class),
-    @JsonSubTypes.Type(name = "Assignment", value = Assignment.class)
-})
 public abstract class AbstractAssignement extends AbstractEntity {
 
     private static final long serialVersionUID = 324778908917012703L;
@@ -31,7 +26,7 @@ public abstract class AbstractAssignement extends AbstractEntity {
         super();
     }
 
-    @JsonIgnore
+    @JsonbTransient
     @Transient
     private String deserialisedTaskName;
 

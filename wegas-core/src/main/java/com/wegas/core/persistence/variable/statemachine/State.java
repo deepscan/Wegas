@@ -7,10 +7,6 @@
  */
 package com.wegas.core.persistence.variable.statemachine;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.Helper;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
@@ -19,7 +15,8 @@ import com.wegas.core.persistence.ListUtils;
 import com.wegas.core.persistence.game.Script;
 import com.wegas.core.persistence.variable.Scripted;
 import com.wegas.core.persistence.variable.Searchable;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.core.security.util.WegasPermission;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,6 +25,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 
 /**
@@ -41,10 +39,6 @@ import javax.persistence.*;
         }
 )
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonSubTypes(value = {
-    @JsonSubTypes.Type(name = "DialogueState", value = DialogueState.class)
-})
 //@OptimisticLocking(cascade = true)
 public class State extends AbstractEntity implements Searchable, Scripted, Broadcastable {
 
@@ -52,7 +46,7 @@ public class State extends AbstractEntity implements Searchable, Scripted, Broad
 
     @ManyToOne
     @JoinColumn(name = "statemachine_id")
-    @JsonIgnore
+    @JsonbTransient
     private StateMachineDescriptor stateMachine;
 
     @Version
@@ -70,7 +64,7 @@ public class State extends AbstractEntity implements Searchable, Scripted, Broad
     /**
      *
      */
-    @JsonView(value = Views.EditorI.class)
+    @WegasJsonView(Views.EditorI.class)
     private Coordinate editorPosition;
 
     /**
@@ -79,7 +73,7 @@ public class State extends AbstractEntity implements Searchable, Scripted, Broad
     @Id
     @Column(name = "state_id")
     @GeneratedValue
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     private Long id;
 
     /**
@@ -91,7 +85,7 @@ public class State extends AbstractEntity implements Searchable, Scripted, Broad
      *
      */
     @Embedded
-    @JsonView(Views.EditorI.class)
+    @WegasJsonView(Views.EditorI.class)
     private Script onEnterEvent;
 
     /**
@@ -206,7 +200,7 @@ public class State extends AbstractEntity implements Searchable, Scripted, Broad
     /**
      * @return unmodifiable list of transitions, sorted by index
      */
-    @JsonIgnore
+    @JsonbTransient
     public List<Transition> getSortedTransitions() {
         Collections.sort(this.transitions, new ComparatorImpl());
         return this.transitions;

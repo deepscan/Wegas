@@ -8,8 +8,8 @@
 package com.wegas.core.persistence.game;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonView;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import java.io.Serializable;
 import javax.persistence.*;
 
@@ -33,34 +33,34 @@ public class GameModelProperties implements Serializable {
     /**
      *
      */
-    @JsonView({Views.ExtendedI.class})
+    @WegasJsonView(Views.ExtendedI.class)
     private String pagesUri = "";
     /**
      *
      */
-    @JsonView({Views.ExtendedI.class})
+    @WegasJsonView(Views.ExtendedI.class)
     private String cssUri = "";
     /**
      *
      */
-    @JsonView({Views.ExtendedI.class})
+    @WegasJsonView(Views.ExtendedI.class)
     private String websocket = "";
 
     /**
      *
      */
-    @JsonView({Views.ExtendedI.class})
+    @WegasJsonView(Views.ExtendedI.class)
     private String logID = "";
     /**
      *
      */
-    @JsonView({Views.ExtendedI.class})
+    @WegasJsonView(Views.ExtendedI.class)
     private String scriptUri = "";
 
     /**
      *
      */
-    @JsonView({Views.ExtendedI.class})
+    @WegasJsonView(Views.ExtendedI.class)
     private String clientScriptUri = "";
     /**
      *

@@ -7,7 +7,7 @@
  */
 package com.wegas.core.persistence;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +26,6 @@ public interface Broadcastable {
      *
      * @return map of touched entities
      */
-    @JsonIgnore
+    @JsonbTransient
     Map<String, List<AbstractEntity>> getEntities();
 }

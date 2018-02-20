@@ -7,7 +7,7 @@
  */
 package com.wegas.core.security.aai;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.security.persistence.AbstractAccount;
@@ -76,8 +76,8 @@ public class AaiAccount extends AbstractAccount {
         }
     }
 
-    // This attribute should not be sent to the client side, hence the JsonIgnore:
-    @JsonIgnore
+    // This attribute should not be sent to the client side, hence the JsonbTransient:
+    @JsonbTransient
     public String getPersistentId(){
         return persistentId;
     }

@@ -10,6 +10,7 @@ package com.wegas.core.exception.client;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.wegas.core.persistence.JsonSerializable;
 import javax.ejb.ApplicationException;
 
 
@@ -19,7 +20,7 @@ import javax.ejb.ApplicationException;
  */
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonSubTypes(value = { 
+@JsonSubTypes(value = {
     @JsonSubTypes.Type(name = "WegasErrorMessage", value = WegasErrorMessage.class),
     @JsonSubTypes.Type(name = "WegasOutOfBoundException", value = WegasOutOfBoundException.class),
     @JsonSubTypes.Type(name = "WegasScriptException", value = WegasScriptException.class),
@@ -27,7 +28,7 @@ import javax.ejb.ApplicationException;
 })
 @JsonIgnoreProperties({"cause", "stackTrace", "suppressed"})
 @ApplicationException(rollback = true)
-public abstract class WegasRuntimeException extends RuntimeException {
+public abstract class WegasRuntimeException extends RuntimeException implements JsonSerializable{
 
     private static final long serialVersionUID = 1484932586696706035L;
 

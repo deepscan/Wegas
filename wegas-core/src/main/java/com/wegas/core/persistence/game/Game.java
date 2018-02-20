@@ -7,10 +7,7 @@
  */
 package com.wegas.core.persistence.game;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.Helper;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.Broadcastable;
@@ -18,12 +15,14 @@ import com.wegas.core.persistence.DatedEntity;
 import com.wegas.core.persistence.InstanceOwner;
 import com.wegas.core.persistence.NamedEntity;
 import com.wegas.core.persistence.variable.VariableInstance;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.core.security.persistence.User;
 import com.wegas.core.security.util.WegasEntityPermission;
 import com.wegas.core.security.util.WegasMembership;
 import com.wegas.core.security.util.WegasPermission;
 import java.util.*;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -95,17 +94,17 @@ public class Game extends NamedEntity implements Broadcastable, InstanceOwner, D
      *
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
+    @JsonbTransient
     private User createdBy;
 
     /**
      *
      */
     @OneToOne(mappedBy = "game", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @JsonbTransient
     private GameTeams gameTeams;
 
-    @JsonIgnore
+    @JsonbTransient
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
     private List<VariableInstance> privateInstances = new ArrayList<>();
 
@@ -200,8 +199,7 @@ public class Game extends NamedEntity implements Broadcastable, InstanceOwner, D
     /**
      * @return the teams
      */
-    @JsonManagedReference("game-team")
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     public List<Team> getTeams() {
         return this.getGameTeams().getTeams();
     }
@@ -209,17 +207,16 @@ public class Game extends NamedEntity implements Broadcastable, InstanceOwner, D
     /**
      * @param teams the teams to set
      */
-    @JsonManagedReference("game-team")
     public void setTeams(List<Team> teams) {
         this.getGameTeams().setTeams(teams);
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public Status getStatus() {
         return status;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public void setStatus(Status status) {
         this.status = status;
     }
@@ -227,7 +224,7 @@ public class Game extends NamedEntity implements Broadcastable, InstanceOwner, D
     /**
      * @return all players from all teams
      */
-    @JsonIgnore
+    @JsonbTransient
     @Override
     public List<Player> getPlayers() {
         List<Player> players = new ArrayList<>();
@@ -240,7 +237,7 @@ public class Game extends NamedEntity implements Broadcastable, InstanceOwner, D
     /**
      * {@inheritDoc }
      */
-    @JsonIgnore
+    @JsonbTransient
     @Override
     public Player getAnyLivePlayer() {
         for (Team t : this.getTeams()) {
@@ -252,7 +249,7 @@ public class Game extends NamedEntity implements Broadcastable, InstanceOwner, D
     /**
      * @param t
      */
-    @JsonIgnore
+    @JsonbTransient
     public void addTeam(Team t) {
 
         this.getTeams().add(t);
@@ -263,7 +260,7 @@ public class Game extends NamedEntity implements Broadcastable, InstanceOwner, D
     /**
      * @return the gameModel
      */
-    @JsonView(Views.LobbyI.class)
+    @WegasJsonView(Views.LobbyI.class)
     public GameModel getGameModel() {
         return gameModel;
     }
@@ -293,7 +290,7 @@ public class Game extends NamedEntity implements Broadcastable, InstanceOwner, D
     /**
      * @return short game name (10 first chars)
      */
-    @JsonIgnore
+    @JsonbTransient
     public String getShortName() {
         if (this.name.length() > 11) {
             return this.name.substring(0, 11);
@@ -348,7 +345,7 @@ public class Game extends NamedEntity implements Broadcastable, InstanceOwner, D
     /**
      * @return the creator
      */
-    @JsonIgnore
+    @JsonbTransient
     public User getCreatedBy() {
         return createdBy;
     }
@@ -465,7 +462,7 @@ public class Game extends NamedEntity implements Broadcastable, InstanceOwner, D
     }
 
     @Override
-    @JsonIgnore
+    @JsonbTransient
     public String getChannel() {
         return Helper.GAME_CHANNEL_PREFIX + getId();
     }

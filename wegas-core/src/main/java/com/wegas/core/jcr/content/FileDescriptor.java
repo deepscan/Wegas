@@ -7,7 +7,7 @@
  */
 package com.wegas.core.jcr.content;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wegas.core.exception.client.WegasErrorMessage;
 import org.apache.commons.lang3.ArrayUtils;
@@ -26,13 +26,13 @@ import java.util.Calendar;
  */
 public class FileDescriptor extends AbstractContentDescriptor {
 
-    @JsonIgnore
+    @JsonbTransient
     static final private org.slf4j.Logger logger = LoggerFactory.getLogger(FileDescriptor.class);
 
-    @JsonIgnore
+    @JsonbTransient
     private Calendar dataLastModified;
 
-    @JsonIgnore
+    @JsonbTransient
     private Long bytes;
 
     /**
@@ -65,7 +65,7 @@ public class FileDescriptor extends AbstractContentDescriptor {
         super(name, path, contentConnector);
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public long getLength() {
         try {
             return connector.getLength(this.fileSystemAbsolutePath);
@@ -82,7 +82,7 @@ public class FileDescriptor extends AbstractContentDescriptor {
      * @param len
      * @return file parital content as Base64 within an inputStream
      */
-    @JsonIgnore
+    @JsonbTransient
     public InputStream getBase64Data(long from, int len) {
         try {
             return connector.getData(this.fileSystemAbsolutePath, from, len);
@@ -97,7 +97,7 @@ public class FileDescriptor extends AbstractContentDescriptor {
     /**
      * @return file content as Base64 within an inputStream
      */
-    @JsonIgnore
+    @JsonbTransient
     public InputStream getBase64Data() {
         try {
             return connector.getData(this.fileSystemAbsolutePath);
@@ -188,7 +188,7 @@ public class FileDescriptor extends AbstractContentDescriptor {
     /**
      * @return @throws IOException
      */
-    @JsonIgnore
+    @JsonbTransient
     protected byte[] getBytesData() throws IOException {
         try {
             return connector.getBytesData(this.fileSystemAbsolutePath);

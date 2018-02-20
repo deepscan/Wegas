@@ -7,7 +7,6 @@
  */
 package com.wegas.core.ejb;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wegas.core.AlphanumericComparator;
 import com.wegas.core.Helper;
 import com.wegas.core.api.VariableDescriptorFacadeI;
@@ -26,8 +25,8 @@ import com.wegas.core.persistence.variable.scope.GameModelScope;
 import com.wegas.core.persistence.variable.scope.GameScope;
 import com.wegas.core.persistence.variable.scope.PlayerScope;
 import com.wegas.core.persistence.variable.scope.TeamScope;
-import com.wegas.core.rest.util.JacksonMapperProvider;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.rest.util.JsonbProvider;
+import com.wegas.core.persistence.views.Views;
 import com.wegas.core.security.ejb.UserFacade;
 import com.wegas.mcq.ejb.QuestionDescriptorFacade;
 import com.wegas.mcq.persistence.QuestionDescriptor;
@@ -46,6 +45,7 @@ import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.json.bind.Jsonb;
 import javax.naming.NamingException;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
@@ -241,7 +241,7 @@ public class VariableDescriptorFacade extends BaseFacade<VariableDescriptor> imp
      * Create a new descriptor as a child of another
      *
      * @param parentDescriptorId owner of the descriptor
-     * @param entity the new descriptor to create
+     * @param entity             the new descriptor to create
      *
      * @return the new child
      */
@@ -253,7 +253,7 @@ public class VariableDescriptorFacade extends BaseFacade<VariableDescriptor> imp
     /**
      * Create a root level descriptor.
      *
-     * @param gameModelId owner of the descriptor
+     * @param gameModelId        owner of the descriptor
      * @param variableDescriptor descriptor to add to the gameModel
      */
     public void create(final Long gameModelId, final VariableDescriptor variableDescriptor) {
@@ -283,11 +283,11 @@ public class VariableDescriptorFacade extends BaseFacade<VariableDescriptor> imp
 
         final VariableDescriptor oldEntity = this.find(entityId);               // Retrieve the entity to duplicate
 
-        final ObjectMapper mapper = JacksonMapperProvider.getMapper();          // Retrieve a jackson mapper instance
-        final String serialized = mapper.writerWithView(Views.Export.class).
-                writeValueAsString(oldEntity);                                  // Serialize the entity
-        final VariableDescriptor newEntity
-                = mapper.readValue(serialized, oldEntity.getClass());           // and deserialize it
+        Jsonb mapper = JsonbProvider.getMapper(Views.Export.class);
+
+        // serialise & deserialise
+        String json = mapper.toJson(oldEntity);
+        final VariableDescriptor newEntity = mapper.fromJson(json, oldEntity.getClass());
 
         final DescriptorListI list = oldEntity.getParent();
         this.createChild(oldEntity.getGameModel(), list, newEntity);

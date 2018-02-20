@@ -30,7 +30,6 @@ import javax.jcr.RepositoryException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.codehaus.jettison.json.JSONException;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -320,7 +319,7 @@ public class PageController {
      */
     @POST
     public Response addPages(@PathParam("gameModelId") Long gameModelId, Map<String, JsonNode> pageMap)
-            throws RepositoryException, JSONException {
+            throws RepositoryException {
 
         GameModel gm = gameModelFacade.find(gameModelId);
         requestManager.assertUpdateRight(gm);
@@ -400,7 +399,7 @@ public class PageController {
     @Consumes(MediaType.TEXT_PLAIN)
     public Response patch(@PathParam("gameModelId") Long gameModelId,
             @PathParam("pageId") String pageId,
-            String patch) throws RepositoryException, JSONException, IOException, JsonPatchException {
+            String patch) throws RepositoryException, IOException, JsonPatchException {
 
         GameModel gm = gameModelFacade.find(gameModelId);
         requestManager.assertUpdateRight(gm);
@@ -410,6 +409,7 @@ public class PageController {
             if (page == null) {
                 return Response.status(Response.Status.NOT_FOUND).header("Page", pageId).build();
             }
+
             JsonNode patches = (new ObjectMapper()).readTree(patch);
             page.patch(patches);
             pages.store(page);

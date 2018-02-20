@@ -7,9 +7,7 @@
  */
 package com.wegas.resourceManagement.persistence;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.AcceptInjection;
@@ -20,6 +18,7 @@ import com.wegas.core.persistence.variable.Propertable;
 import com.wegas.core.persistence.variable.VariableInstance;
 import java.util.ArrayList;
 import java.util.List;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 
 /**
@@ -43,20 +42,17 @@ public class ResourceInstance extends VariableInstance implements Propertable, A
     @OneToMany(mappedBy = "resourceInstance", cascade = {CascadeType.ALL}/*
      * , orphanRemoval = true
      */)
-    @JsonManagedReference
     @OrderColumn
     private List<Assignment> assignments = new ArrayList<>();
     /**
      *
      */
     @OneToMany(mappedBy = "resourceInstance", cascade = {CascadeType.ALL}, orphanRemoval = true)
-    @JsonManagedReference
     private List<Occupation> occupations = new ArrayList<>();
     /**
      *
      */
     @OneToMany(mappedBy = "resourceInstance", cascade = {CascadeType.ALL}, orphanRemoval = true)
-    @JsonManagedReference
     private List<Activity> activities = new ArrayList<>();
     /**
      *
@@ -66,20 +62,20 @@ public class ResourceInstance extends VariableInstance implements Propertable, A
      *
      */
     @ElementCollection
-    @JsonIgnore
+    @JsonbTransient
     private List<VariableProperty> properties = new ArrayList<>();
     /**
      *
      */
     private int confidence;
 
-    @JsonIgnore
+    @JsonbTransient
     @Override
     public List<VariableProperty> getInternalProperties() {
         return properties;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     @Transient
     private Beanjection beans;
 

@@ -7,18 +7,17 @@
  */
 package com.wegas.reviewing.persistence.evaluation;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.ListUtils;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.core.security.util.WegasPermission;
 import com.wegas.reviewing.persistence.PeerReviewDescriptor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
@@ -40,24 +39,23 @@ public class EvaluationDescriptorContainer extends AbstractEntity {
 
     @Id
     @GeneratedValue
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     private Long id;
 
     /**
      * List of evaluations
      */
     @OneToMany(mappedBy = "container", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    @JsonView(Views.EditorI.class)
+    @WegasJsonView(Views.EditorI.class)
     @NotNull
     private List<EvaluationDescriptor> evaluations = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "feedback")
-    @JsonIgnore
+    @JsonbTransient
     private PeerReviewDescriptor fbPeerReviewDescriptor;
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "fbComments")
-    @JsonIgnore
+    @JsonbTransient
     private PeerReviewDescriptor commentsPeerReviewDescriptor;
 
     /**

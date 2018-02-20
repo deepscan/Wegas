@@ -7,7 +7,6 @@
  */
 package com.wegas.integration;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -22,11 +21,11 @@ import com.wegas.test.TestHelper;
 import com.wegas.utils.WegasRESTClient;
 import com.wegas.utils.WegasRESTClient.TestAuthenticationInformation;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
-import org.codehaus.jettison.json.JSONException;
 import org.glassfish.embeddable.GlassFishException;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -96,7 +95,7 @@ public class WegasTest {
     }
 
     @Before
-    public void setUp() throws IOException, JSONException {
+    public void setUp() throws IOException {
         logger.error("TEST {}", name.getMethodName());
         logger.error("LOGIN as root");
         client.login(root);
@@ -124,7 +123,7 @@ public class WegasTest {
         client.put("/rest/User/Account/" + trainerUser.getMainAccount().getId(), trainerUser.getMainAccount());
     }
 
-    private void loadArtos() throws IOException, JSONException {
+    private void loadArtos() throws IOException {
         logger.error("LOAD ARTOS");
         artos = client.postJSONFromFile("/rest/GameModel", "src/main/webapp/wegas-private/wegas-pmg/db/wegas-pmg-gamemodel-Artos.json", GameModel.class);
     }
@@ -142,8 +141,8 @@ public class WegasTest {
 
         logger.error("scenarist share to trainer");
         client.login(scenarist);
-        List<GameModel> gameModels = client.get("/rest/GameModel/status/LIVE", new TypeReference<List<GameModel>>() {
-        });
+        List<GameModel> dummyGameModelList = new ArrayList<>();
+        List<GameModel> gameModels = client.get("/rest/GameModel/status/LIVE", dummyGameModelList);
 
         logger.error("# gamemodels scen:" + gameModels.size());
         Assert.assertEquals(2, gameModels.size()); // Artos  + _empty
@@ -151,8 +150,7 @@ public class WegasTest {
 
         client.login(trainer);
 
-        gameModels = client.get("/rest/GameModel/status/LIVE", new TypeReference<List<GameModel>>() {
-        });
+        gameModels = client.get("/rest/GameModel/status/LIVE", dummyGameModelList);
         logger.error("# gamemodels trainer:" + gameModels.size());
         // Get
         Assert.assertEquals(2, gameModels.size()); // artos +empty
@@ -161,8 +159,9 @@ public class WegasTest {
         Game myGame = client.postJSON_asString("/rest/GameModel/" + artos.getId() + "/Game", "{\"@class\":\"Game\",\"gameModelId\":\"" + artos.getId() + "\",\"access\":\"OPEN\",\"name\":\"ArtosGame\"}", Game.class);
         String token = myGame.getToken();
 
-        List<Game> games = client.get("/rest/GameModel/Game/status/LIVE", new TypeReference<List<Game>>() {
-        });
+        List<Game> dummyGame = new ArrayList<>();
+
+        List<Game> games = client.get("/rest/GameModel/Game/status/LIVE", dummyGame);
         Assert.assertEquals(1, games.size()); // artos +empty
 
         client.login(user);
@@ -186,21 +185,21 @@ public class WegasTest {
 
         client.login(user);
 
-        List<Team> userTeams = client.get("/rest/User/Current/Team", new TypeReference<List<Team>>() {
-        });
+        List<Team> dummyTeamList = new ArrayList<>();
+        List<Team> userTeams = client.get("/rest/User/Current/Team", dummyTeamList);
 
         Assert.assertEquals(1, userTeams.size()); // artos +empty
     }
 
     @Test
-    public void testUpdateAndCreateGame() throws IOException, JSONException {
+    public void testUpdateAndCreateGame() throws IOException {
         GameModel myGameModel = client.postJSONFromFile("/rest/GameModel", "src/test/resources/gmScope.json", GameModel.class);
         Game myGame = client.postJSON_asString("/rest/GameModel/" + myGameModel.getId() + "/Game", "{\"@class\":\"Game\",\"gameModelId\":\"" + myGameModel.getId() + "\",\"access\":\"OPEN\",\"name\":\"My Test Game\"}", Game.class);
         myGame.getId();
     }
 
     @Test
-    public void createGameTest() throws IOException, JSONException {
+    public void createGameTest() throws IOException {
         Game myGame = client.postJSON_asString("/rest/GameModel/" + this.artos.getId() + "/Game", "{\"@class\":\"Game\",\"gameModelId\":\"" + this.artos.getId() + "\",\"access\":\"OPEN\",\"name\":\"My Artos Game\"}", Game.class);
 
         Game myGameFromGet = client.get("/rest/GameModel/Game/" + myGame.getId(), Game.class);
@@ -212,19 +211,19 @@ public class WegasTest {
     }
 
     @Test
-    public void getVariableDescriptor() throws IOException, JSONException {
+    public void getVariableDescriptor() throws IOException {
         List<VariableDescriptor> descs;
 
-        descs = (List<VariableDescriptor>) (client.get("/rest/GameModel/" + this.artos.getId() + "/VariableDescriptor", new TypeReference<List<VariableDescriptor>>() {
-        }));
+        List<VariableDescriptor> dummyVdList = new ArrayList<>();
+        descs = client.get("/rest/GameModel/" + this.artos.getId() + "/VariableDescriptor", dummyVdList);
 
         Assert.assertTrue("Seems there is not enough descritpr here...", descs.size() > 10);
     }
 
     @Test
-    public void manageModeTest() throws IOException, JSONException {
-        List<GameModel> get = (List<GameModel>) client.get("/rest/GameModel", new TypeReference<List<GameModel>>() {
-        });
+    public void manageModeTest() throws IOException {
+        List<GameModel> gmList = new ArrayList<>();
+        List<GameModel> get = client.get("/rest/GameModel", gmList);
         get.size();
     }
 

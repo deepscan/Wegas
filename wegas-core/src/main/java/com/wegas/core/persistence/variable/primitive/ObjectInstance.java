@@ -8,7 +8,7 @@
 package com.wegas.core.persistence.variable.primitive;
 
 import com.wegas.core.persistence.VariableProperty;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.variable.Propertable;
@@ -37,11 +37,11 @@ public class ObjectInstance extends VariableInstance implements Propertable {
      *
      */
     @ElementCollection
-    @JsonIgnore
+    @JsonbTransient
     private List<VariableProperty> properties = new ArrayList<>();
 
     @Override
-    @JsonIgnore
+    @JsonbTransient
     public List<VariableProperty> getInternalProperties() {
         return this.properties;
     }

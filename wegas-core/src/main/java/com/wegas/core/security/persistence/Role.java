@@ -7,7 +7,7 @@
  */
 package com.wegas.core.security.persistence;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.ListUtils;
@@ -71,10 +71,10 @@ public class Role extends AbstractEntity implements PermissionOwner {
     /**
      *
      */
-    /*@JsonIgnore
+    /*@JsonbTransient
      @ManyToMany(mappedBy = "roles")
      private Set<AbstractAccount> abstractAccounts = new HashSet<>();*/
-    @JsonIgnore
+    @JsonbTransient
     @ManyToMany(mappedBy = "roles")
     private Collection<User> users = new HashSet<>();
 

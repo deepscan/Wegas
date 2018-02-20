@@ -7,8 +7,6 @@
  */
 package com.wegas.core.persistence.game;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wegas.core.Helper;
 import com.wegas.core.persistence.AbstractEntity;
@@ -29,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +62,7 @@ public class Player extends AbstractEntity implements Broadcastable, InstanceOwn
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    @JsonIgnore
+    @JsonbTransient
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
     private List<VariableInstance> privateInstances = new ArrayList<>();
 
@@ -89,7 +88,7 @@ public class Player extends AbstractEntity implements Broadcastable, InstanceOwn
      * The game model this belongs to
      */
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JsonBackReference(value = "player-team")
+    @JsonbTransient
     @JoinColumn(name = "parentteam_id", nullable = false)
     private Team team;
 
@@ -185,7 +184,7 @@ public class Player extends AbstractEntity implements Broadcastable, InstanceOwn
     /**
      * @return the user
      */
-    @JsonBackReference(value = "player-user")
+    @JsonbTransient
     public User getUser() {
         return user;
     }
@@ -193,7 +192,7 @@ public class Player extends AbstractEntity implements Broadcastable, InstanceOwn
     /**
      * @param user the user to set
      */
-    @JsonBackReference(value = "player-user")
+    @JsonbTransient
     public void setUser(User user) {
         this.user = user;
     }
@@ -201,7 +200,7 @@ public class Player extends AbstractEntity implements Broadcastable, InstanceOwn
     /**
      * @return the team
      */
-    @JsonBackReference(value = "player-team")
+    @JsonbTransient
     public Team getTeam() {
         return team;
     }
@@ -209,7 +208,7 @@ public class Player extends AbstractEntity implements Broadcastable, InstanceOwn
     /**
      * @param team the team to set
      */
-    @JsonBackReference(value = "player-team")
+    @JsonbTransient
     public void setTeam(Team team) {
         this.team = team;
     }
@@ -238,7 +237,7 @@ public class Player extends AbstractEntity implements Broadcastable, InstanceOwn
      *
      * @return gameModel the player is linked to
      */
-    @JsonIgnore
+    @JsonbTransient
     public GameModel getGameModel() {
         return this.getTeam().getGame().getGameModel();
     }
@@ -247,7 +246,7 @@ public class Player extends AbstractEntity implements Broadcastable, InstanceOwn
      *
      * @return id of gameModel the player is linked to
      */
-    @JsonIgnore
+    @JsonbTransient
     public long getGameModelId() {
         return this.getTeam().getGame().getGameModel().getId();
     }
@@ -256,7 +255,7 @@ public class Player extends AbstractEntity implements Broadcastable, InstanceOwn
      *
      * @return game the player is linked to
      */
-    @JsonIgnore
+    @JsonbTransient
     public Game getGame() {
         return this.getTeam().getGame();
     }
@@ -265,7 +264,7 @@ public class Player extends AbstractEntity implements Broadcastable, InstanceOwn
      *
      * @return id of the game the player is linked to
      */
-    @JsonIgnore
+    @JsonbTransient
     public Long getGameId() {
         if (this.getTeam() != null) {
             if (this.getGame() != null) {
@@ -374,7 +373,7 @@ public class Player extends AbstractEntity implements Broadcastable, InstanceOwn
     }
 
     @Override
-    @JsonIgnore
+    @JsonbTransient
     public List<Player> getPlayers() {
         ArrayList<Player> pl = new ArrayList<>();
         pl.add(this);
@@ -382,7 +381,7 @@ public class Player extends AbstractEntity implements Broadcastable, InstanceOwn
     }
 
     @Override
-    @JsonIgnore
+    @JsonbTransient
     public Player getAnyLivePlayer() {
         if (this.getStatus().equals(Status.LIVE)) {
             return this;
@@ -449,7 +448,7 @@ public class Player extends AbstractEntity implements Broadcastable, InstanceOwn
         }
     }
 
-    @JsonIgnore
+    @JsonbTransient
     @Override
     public String getChannel() {
         return Helper.PLAYER_CHANNEL_PREFIX + this.getId();

@@ -7,7 +7,6 @@
  */
 package com.wegas.core.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wegas.core.ejb.GameModelFacade;
 import com.wegas.core.ejb.JCRFacade;
 import com.wegas.core.ejb.RequestManager;
@@ -15,22 +14,21 @@ import com.wegas.core.exception.client.WegasErrorMessage;
 import com.wegas.core.jcr.content.*;
 import com.wegas.core.jcr.content.ContentConnector.WorkspaceType;
 import com.wegas.core.persistence.game.GameModel;
-import com.wegas.core.rest.util.JacksonMapperProvider;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.rest.util.JsonbProvider;
+import com.wegas.core.persistence.views.Views;
 import com.wegas.core.security.ejb.UserFacade;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import org.slf4j.LoggerFactory;
-
+import java.util.Date;
+import java.util.List;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.jcr.RepositoryException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.util.Date;
-import java.util.List;
-import javax.inject.Inject;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Cyril Junod (cyril.junod at gmail.com)
@@ -54,7 +52,6 @@ public class HistoryController {
 
     @Inject
     private RequestManager requestManager;
-    
 
     @Inject
     private UserFacade userFacade;
@@ -88,7 +85,7 @@ public class HistoryController {
     @Path("{absolutePath : .*?}")
     @Produces(MediaType.APPLICATION_JSON)
     public Object delete(@PathParam("gameModelId") Long gameModelId,
-            @PathParam("absolutePath") String absolutePath){
+            @PathParam("absolutePath") String absolutePath) {
 
         return jcrFacade.delete(gameModelId, ContentConnector.WorkspaceType.HISTORY, absolutePath, "true");
     }
@@ -166,12 +163,14 @@ public class HistoryController {
     public GameModel createFromVersion(@PathParam("gameModelId") Long gameModelId,
             @PathParam("path") String path) throws IOException {
 
-        InputStream file = jcrFacade.getFile(gameModelId, WorkspaceType.HISTORY, path);           // Retrieve file from content repository
+        // Retrieve file from content repository
+        InputStream file = jcrFacade.getFile(gameModelId, WorkspaceType.HISTORY, path);
 
-        ObjectMapper mapper = JacksonMapperProvider.getMapper();                // Retrieve a jackson mapper instance
-        GameModel gm = mapper.readValue(file, GameModel.class);                 // and deserialize file
+        // make a new gameModel by parsing the file
+        GameModel gm = JsonbProvider.getMapper(null).fromJson(file, GameModel.class);
 
-        gm.setName(gameModelFacade.findUniqueName(gm.getName()));               // Find a unique name for this new game
+        // Find a unique name for this new game and create a new gamemodel
+        gm.setName(gameModelFacade.findUniqueName(gm.getName()));
         gameModelFacade.createWithDebugGame(gm);
 
         return gm;

@@ -10,16 +10,13 @@ package com.wegas.admin.persistence;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wegas.core.persistence.game.Player;
 import com.wegas.core.persistence.game.Team;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author J. Hulaas (jarle.hulaas at heig-vd.ch)
  */
-
 @JsonIgnoreProperties(ignoreUnknown = true)
-
 public class GameAdminTeam {
 
     private String name;

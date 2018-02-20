@@ -23,7 +23,8 @@ import com.wegas.core.persistence.game.Game;
 import com.wegas.core.persistence.game.GameModel;
 import com.wegas.core.persistence.game.Player;
 import com.wegas.core.persistence.game.Team;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.Views.WegasView;
 import com.wegas.core.security.aai.AaiRealm;
 import com.wegas.core.security.ejb.AccountFacade;
 import com.wegas.core.security.ejb.UserFacade;
@@ -178,7 +179,7 @@ public class RequestManager implements RequestManagerI {
     /**
      * Default view is {@link Views#Public}
      */
-    private Class view = Views.Public.class;
+    private Class<? extends WegasView> view = Views.Public.class;
 
     /**
      * The current player
@@ -678,7 +679,7 @@ public class RequestManager implements RequestManagerI {
      *
      * @return the view
      */
-    public Class getView() {
+    public Class<? extends WegasView> getView() {
         return view;
     }
 
@@ -687,7 +688,7 @@ public class RequestManager implements RequestManagerI {
      *
      * @param view the view to set
      */
-    public void setView(Class view) {
+    public void setView(Class<? extends WegasView> view) {
         this.view = view;
     }
 

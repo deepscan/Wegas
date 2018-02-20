@@ -7,22 +7,20 @@
  */
 package com.wegas.resourceManagement.persistence;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.exception.client.WegasOutOfBoundException;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.ListUtils;
-import com.wegas.core.persistence.variable.Propertable;
 import com.wegas.core.persistence.VariableProperty;
 import com.wegas.core.persistence.variable.Beanjection;
+import com.wegas.core.persistence.variable.Propertable;
 import com.wegas.core.persistence.variable.VariableInstance;
-import com.wegas.core.rest.util.Views;
 import com.wegas.resourceManagement.ejb.IterationFacade;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -60,23 +58,23 @@ public class TaskInstance extends VariableInstance implements Propertable {
     private List<Integer> plannification = new ArrayList<>();
 
     @OneToMany(mappedBy = "taskInstance", cascade = {CascadeType.ALL}, orphanRemoval = true)
-    @JsonIgnore
+    @JsonbTransient
     private List<Activity> activities = new ArrayList<>();
 
     @OneToMany(mappedBy = "taskInstance", cascade = {CascadeType.ALL}, orphanRemoval = true)
-    @JsonIgnore
+    @JsonbTransient
     private List<Assignment> assignments = new ArrayList<>();
 
     @ManyToMany(mappedBy = "tasks")
-    //@JsonView(Views.ExtendedI.class)
-    @JsonIgnore
+    //@WegasJsonView(Views.ExtendedI.class)
+    @JsonbTransient
     private List<Iteration> iterations;
 
     /**
      *
      */
     @ElementCollection
-    @JsonIgnore
+    @JsonbTransient
     private List<VariableProperty> properties = new ArrayList<>();
     /**
      *
@@ -102,7 +100,7 @@ public class TaskInstance extends VariableInstance implements Propertable {
     /**
      * @return the duration
      */
-    @JsonIgnore
+    @JsonbTransient
     public Double getDuration() {
         return duration;
     }
@@ -121,7 +119,7 @@ public class TaskInstance extends VariableInstance implements Propertable {
         }
     }
 
-    @JsonIgnore
+    @JsonbTransient
     @Override
     public List<VariableProperty> getInternalProperties() {
         return this.properties;
@@ -203,7 +201,7 @@ public class TaskInstance extends VariableInstance implements Propertable {
      *
      * @return get all iterations this task is part of
      */
-    @JsonIgnore
+    @JsonbTransient
     public List<Iteration> getIterations() {
         return iterations;
     }
@@ -212,7 +210,7 @@ public class TaskInstance extends VariableInstance implements Propertable {
      *
      * @param iterations
      */
-    @JsonIgnore
+    @JsonbTransient
     public void setIterations(List<Iteration> iterations) {
         this.iterations = iterations;
     }

@@ -7,14 +7,13 @@
  */
 package com.wegas.resourceManagement.persistence;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.variable.Beanjection;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 
 /**
@@ -33,7 +32,7 @@ public class Activity extends AbstractAssignement {
     private static final long serialVersionUID = 1L;
 
     @Transient
-    @JsonIgnore
+    @JsonbTransient
     private String deserialisedRequirementName;
 
     /**
@@ -41,7 +40,7 @@ public class Activity extends AbstractAssignement {
      */
     @Id
     @GeneratedValue
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     private Long id;
     /**
      * worked time ? strange spelling...
@@ -72,8 +71,7 @@ public class Activity extends AbstractAssignement {
      */
     @ManyToOne(optional = false)
     @JoinColumn(name = "variableinstance_id", nullable = false)
-    @JsonBackReference
-    @JsonIgnore
+    @JsonbTransient
     private ResourceInstance resourceInstance;
 
     /**
@@ -81,7 +79,7 @@ public class Activity extends AbstractAssignement {
      */
     @ManyToOne(optional = true, cascade = CascadeType.ALL)
     @JoinColumn(name = "wrequirement_id", nullable = true)
-    @JsonIgnore
+    @JsonbTransient
     private WRequirement requirement;
 
     /**
@@ -122,8 +120,7 @@ public class Activity extends AbstractAssignement {
     /**
      * @return the ResourceInstance
      */
-    @JsonBackReference
-    @JsonIgnore
+    @JsonbTransient
     @Override
     public ResourceInstance getResourceInstance() {
         return resourceInstance;
@@ -132,7 +129,7 @@ public class Activity extends AbstractAssignement {
     /**
      * @param resourceInstance
      */
-    @JsonBackReference
+    @JsonbTransient
     public void setResourceInstance(ResourceInstance resourceInstance) {
         this.resourceInstance = resourceInstance;
     }
@@ -171,7 +168,7 @@ public class Activity extends AbstractAssignement {
     /**
      * @return the taskInstance
      */
-    @JsonIgnore
+    @JsonbTransient
     @Override
     public TaskInstance getTaskInstance() {
         return taskInstance;

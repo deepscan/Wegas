@@ -8,7 +8,6 @@
 package com.wegas.core;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wegas.core.event.client.CustomEvent;
 import com.wegas.core.event.client.EntityUpdatedEvent;
 import com.wegas.core.event.client.ExceptionEvent;
@@ -38,9 +37,8 @@ import com.wegas.core.persistence.variable.statemachine.State;
 import com.wegas.core.persistence.variable.statemachine.StateMachineDescriptor;
 import com.wegas.core.persistence.variable.statemachine.StateMachineInstance;
 import com.wegas.core.persistence.variable.statemachine.Transition;
-import com.wegas.core.rest.util.JacksonMapperProvider;
+import com.wegas.core.rest.util.JsonbProvider;
 import com.wegas.core.rest.util.ManagedResponse;
-import com.wegas.core.rest.util.Views;
 import com.wegas.core.security.facebook.FacebookAccount;
 import com.wegas.core.security.guest.GuestJpaAccount;
 import com.wegas.core.security.jparealm.JpaAccount;
@@ -68,6 +66,7 @@ import com.wegas.resourceManagement.persistence.WRequirement;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.json.bind.Jsonb;
 import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -83,14 +82,14 @@ public class SerializationTest {
 
     private static Logger logger = LoggerFactory.getLogger(SerializationTest.class);
 
-    ObjectMapper mapper;
+    Jsonb jsonb;
 
     public SerializationTest() {
     }
 
     @Before
     public void setUp() {
-        mapper = JacksonMapperProvider.getMapper();
+        jsonb = JsonbProvider.getMapper(null);
     }
 
     @After
@@ -103,7 +102,7 @@ public class SerializationTest {
     }
 
     @Test
-    public void testFSMSerialization() throws JsonProcessingException {
+    public void testFSMSerialization() {
         StateMachineDescriptor smD = new StateMachineDescriptor();
         StateMachineInstance smI = new StateMachineInstance();
         smD.setDefaultInstance(smI);
@@ -130,16 +129,16 @@ public class SerializationTest {
         trans1.setNextStateId(2L);
         s1.addTransition(trans1);
 
-        assertPropertyEquals(mapper.writeValueAsString(smD), "@class", "FSMDescriptor");
-        assertPropertyEquals(mapper.writeValueAsString(smI), "@class", "FSMInstance");
+        assertPropertyEquals(jsonb.toJson(smD), "@class", "FSMDescriptor");
+        assertPropertyEquals(jsonb.toJson(smI), "@class", "FSMInstance");
 
-        assertPropertyEquals(mapper.writeValueAsString(s1), "@class", "State");
-        assertPropertyEquals(mapper.writeValueAsString(coord1), "@class", "Coordinate");
+        assertPropertyEquals(jsonb.toJson(s1), "@class", "State");
+        assertPropertyEquals(jsonb.toJson(coord1), "@class", "Coordinate");
 
-        assertPropertyEquals(mapper.writeValueAsString(s2), "@class", "State");
-        assertPropertyEquals(mapper.writeValueAsString(coord2), "@class", "Coordinate");
+        assertPropertyEquals(jsonb.toJson(s2), "@class", "State");
+        assertPropertyEquals(jsonb.toJson(coord2), "@class", "Coordinate");
 
-        assertPropertyEquals(mapper.writeValueAsString(trans1), "@class", "Transition");
+        assertPropertyEquals(jsonb.toJson(trans1), "@class", "Transition");
     }
 
     @Test
@@ -177,23 +176,23 @@ public class SerializationTest {
         textD.setDefaultInstance(textI);
         textI.setDefaultDescriptor(textD);
 
-        assertPropertyEquals(mapper.writeValueAsString(listD), "@class", "ListDescriptor");
-        assertPropertyEquals(mapper.writeValueAsString(listI), "@class", "ListInstance");
+        assertPropertyEquals(jsonb.toJson(listD), "@class", "ListDescriptor");
+        assertPropertyEquals(jsonb.toJson(listI), "@class", "ListInstance");
 
-        assertPropertyEquals(mapper.writeValueAsString(blnD), "@class", "BooleanDescriptor");
-        assertPropertyEquals(mapper.writeValueAsString(blnI), "@class", "BooleanInstance");
+        assertPropertyEquals(jsonb.toJson(blnD), "@class", "BooleanDescriptor");
+        assertPropertyEquals(jsonb.toJson(blnI), "@class", "BooleanInstance");
 
-        assertPropertyEquals(mapper.writeValueAsString(numD), "@class", "NumberDescriptor");
-        assertPropertyEquals(mapper.writeValueAsString(numI), "@class", "NumberInstance");
+        assertPropertyEquals(jsonb.toJson(numD), "@class", "NumberDescriptor");
+        assertPropertyEquals(jsonb.toJson(numI), "@class", "NumberInstance");
 
-        assertPropertyEquals(mapper.writeValueAsString(objD), "@class", "ObjectDescriptor");
-        assertPropertyEquals(mapper.writeValueAsString(objI), "@class", "ObjectInstance");
+        assertPropertyEquals(jsonb.toJson(objD), "@class", "ObjectDescriptor");
+        assertPropertyEquals(jsonb.toJson(objI), "@class", "ObjectInstance");
 
-        assertPropertyEquals(mapper.writeValueAsString(stringD), "@class", "StringDescriptor");
-        assertPropertyEquals(mapper.writeValueAsString(stringI), "@class", "StringInstance");
+        assertPropertyEquals(jsonb.toJson(stringD), "@class", "StringDescriptor");
+        assertPropertyEquals(jsonb.toJson(stringI), "@class", "StringInstance");
 
-        assertPropertyEquals(mapper.writeValueAsString(textD), "@class", "TextDescriptor");
-        assertPropertyEquals(mapper.writeValueAsString(textI), "@class", "TextInstance");
+        assertPropertyEquals(jsonb.toJson(textD), "@class", "TextDescriptor");
+        assertPropertyEquals(jsonb.toJson(textI), "@class", "TextInstance");
 
     }
 
@@ -231,17 +230,16 @@ public class SerializationTest {
         permission.setUser(jpaUser);
         jpaUser.addPermission(permission);
 
-        assertPropertyEquals(mapper.writerWithView(Views.Public.class).writeValueAsString(game),
-                "@class", "Game");
-        assertPropertyEquals(mapper.writeValueAsString(team1), "@class", "Team");
+        assertPropertyEquals(jsonb.toJson(game), "@class", "Game");
+        assertPropertyEquals(jsonb.toJson(team1), "@class", "Team");
 
-        assertPropertyEquals(mapper.writeValueAsString(fbAccount), "@class", "FacebookAccount");
-        assertPropertyEquals(mapper.writeValueAsString(guAccount), "@class", "GuestJpaAccount");
-        assertPropertyEquals(mapper.writeValueAsString(jpaAccount), "@class", "JpaAccount");
+        assertPropertyEquals(jsonb.toJson(fbAccount), "@class", "FacebookAccount");
+        assertPropertyEquals(jsonb.toJson(guAccount), "@class", "GuestJpaAccount");
+        assertPropertyEquals(jsonb.toJson(jpaAccount), "@class", "JpaAccount");
 
-        assertPropertyEquals(mapper.writeValueAsString(jpaUser), "@class", "User");
-        assertPropertyEquals(mapper.writeValueAsString(jpaPlayer), "@class", "Player");
-        assertPropertyEquals(mapper.writeValueAsString(permission), "@class", "Permission");
+        assertPropertyEquals(jsonb.toJson(jpaUser), "@class", "User");
+        assertPropertyEquals(jsonb.toJson(jpaPlayer), "@class", "Player");
+        assertPropertyEquals(jsonb.toJson(permission), "@class", "Permission");
     }
 
     @Test
@@ -277,24 +275,24 @@ public class SerializationTest {
         //result11.addReply(reply);
         reply.setResult(result11);
 
-        assertPropertyEquals(mapper.writeValueAsString(questionD), "@class", "QuestionDescriptor");
-        assertPropertyEquals(mapper.writeValueAsString(questionI), "@class", "QuestionInstance");
+        assertPropertyEquals(jsonb.toJson(questionD), "@class", "QuestionDescriptor");
+        assertPropertyEquals(jsonb.toJson(questionI), "@class", "QuestionInstance");
 
-        assertPropertyEquals(mapper.writeValueAsString(questionD), "@class", "ChoiceDescriptor");
-        assertPropertyEquals(mapper.writeValueAsString(choiceI), "@class", "ChoiceInstance");
+        assertPropertyEquals(jsonb.toJson(questionD), "@class", "ChoiceDescriptor");
+        assertPropertyEquals(jsonb.toJson(choiceI), "@class", "ChoiceInstance");
 
-        assertPropertyEquals(mapper.writeValueAsString(result11), "@class", "Result");
-        assertPropertyEquals(mapper.writeValueAsString(result12), "@class", "Result");
+        assertPropertyEquals(jsonb.toJson(result11), "@class", "Result");
+        assertPropertyEquals(jsonb.toJson(result12), "@class", "Result");
 
-        assertPropertyEquals(mapper.writeValueAsString(singleResult), "@class", "SingleResultChoiceDescriptor");
-        assertPropertyEquals(mapper.writeValueAsString(singleChoiceI), "@class", "ChoiceInstance");
-        assertPropertyEquals(mapper.writeValueAsString(result21), "@class", "Result");
+        assertPropertyEquals(jsonb.toJson(singleResult), "@class", "SingleResultChoiceDescriptor");
+        assertPropertyEquals(jsonb.toJson(singleChoiceI), "@class", "ChoiceInstance");
+        assertPropertyEquals(jsonb.toJson(result21), "@class", "Result");
 
-        assertPropertyEquals(mapper.writeValueAsString(reply), "@class", "Reply");
+        assertPropertyEquals(jsonb.toJson(reply), "@class", "Reply");
     }
 
     @Test
-    public void testMessagingSerialization() throws JsonProcessingException {
+    public void testMessagingSerialization() {
         InboxDescriptor inboxD = new InboxDescriptor();
         InboxInstance inboxI = new InboxInstance();
         inboxI.setDefaultDescriptor(inboxD);
@@ -306,14 +304,14 @@ public class SerializationTest {
         inboxI.addMessage(msg1);
         inboxI.addMessage(msg2);
 
-        assertPropertyEquals(mapper.writeValueAsString(inboxD), "@class", "InboxDescriptor");
-        assertPropertyEquals(mapper.writeValueAsString(inboxI), "@class", "InboxInstance");
-        assertPropertyEquals(mapper.writeValueAsString(msg1), "@class", "Message");
-        assertPropertyEquals(mapper.writeValueAsString(msg2), "@class", "Message");
+        assertPropertyEquals(jsonb.toJson(inboxD), "@class", "InboxDescriptor");
+        assertPropertyEquals(jsonb.toJson(inboxI), "@class", "InboxInstance");
+        assertPropertyEquals(jsonb.toJson(msg1), "@class", "Message");
+        assertPropertyEquals(jsonb.toJson(msg2), "@class", "Message");
     }
 
     @Test
-    public void testResourceManagementSerialization() throws JsonProcessingException, IOException {
+    public void testResourceManagementSerialization() {
         /*
          *  RESOURCE MANAGEMENT  
          */
@@ -333,14 +331,14 @@ public class SerializationTest {
         taskI.getPlannification().add(2);
         taskI.setProperty("instanceProperty", propertyValue);
 
-        assertPropertyEquals(mapper.writeValueAsString(taskD), "@class", "TaskDescriptor");
-        assertPropertyEquals(mapper.writeValueAsString(taskI), "@class", "TaskInstance");
+        assertPropertyEquals(jsonb.toJson(taskD), "@class", "TaskDescriptor");
+        assertPropertyEquals(jsonb.toJson(taskI), "@class", "TaskInstance");
 
-        String strTaskD = mapper.writeValueAsString(taskD);
-        String strTaskI = mapper.writeValueAsString(taskI);
+        String strTaskD = jsonb.toJson(taskD);
+        String strTaskI = jsonb.toJson(taskI);
 
-        TaskInstance readTaskI = mapper.readValue(strTaskI, TaskInstance.class);
-        TaskDescriptor readTaskD = mapper.readValue(strTaskD, TaskDescriptor.class);
+        TaskInstance readTaskI = jsonb.fromJson(strTaskI, TaskInstance.class);
+        TaskDescriptor readTaskD = jsonb.fromJson(strTaskD, TaskDescriptor.class);
 
         assertEquals(propertyValue, readTaskI.getProperty("instanceProperty"));
         assertEquals(propertyValue, readTaskD.getProperty("descriptorProperty"));
@@ -352,8 +350,8 @@ public class SerializationTest {
         resourceD.setDefaultInstance(resourceI);
         resourceI.setProperty("Level", "8");
 
-        assertPropertyEquals(mapper.writeValueAsString(resourceD), "@class", "ResourceDescriptor");
-        assertPropertyEquals(mapper.writeValueAsString(resourceI), "@class", "ResourceInstance");
+        assertPropertyEquals(jsonb.toJson(resourceD), "@class", "ResourceDescriptor");
+        assertPropertyEquals(jsonb.toJson(resourceI), "@class", "ResourceInstance");
 
         Activity activity = new Activity();
         taskI.addActivity(activity);
@@ -370,14 +368,14 @@ public class SerializationTest {
 
         activity.setRequirement(req);
 
-        assertPropertyEquals(mapper.writeValueAsString(activity), "@class", "Activity");
-        assertPropertyEquals(mapper.writeValueAsString(assignment), "@class", "Assignment");
-        assertPropertyEquals(mapper.writeValueAsString(occupation), "@class", "Occupation");
-        assertPropertyEquals(mapper.writeValueAsString(req), "@class", "WRequirement");
+        assertPropertyEquals(jsonb.toJson(activity), "@class", "Activity");
+        assertPropertyEquals(jsonb.toJson(assignment), "@class", "Assignment");
+        assertPropertyEquals(jsonb.toJson(occupation), "@class", "Occupation");
+        assertPropertyEquals(jsonb.toJson(req), "@class", "WRequirement");
     }
 
     @Test
-    public void testExceptionMapper() throws JsonProcessingException {
+    public void testExceptionMapper() {
         NumberDescriptor nd = new NumberDescriptor("x");
         NumberInstance ns = new NumberInstance(0);
 
@@ -389,19 +387,19 @@ public class SerializationTest {
 
         nd.getDefaultInstance().setValue(-10);
 
-        String json = mapper.writeValueAsString(new WegasOutOfBoundException(nd.getMinValue(), nd.getMaxValue(), ns.getValue(), nd.getName(), nd.getLabel()));
+        String json = jsonb.toJson(new WegasOutOfBoundException(nd.getMinValue(), nd.getMaxValue(), ns.getValue(), nd.getName(), nd.getLabel()));
         System.out.println("WOOB: " + json);
         assertPropertyEquals(json, "@class", "WegasOutOfBoundException");
 
-        json = mapper.writeValueAsString(WegasErrorMessage.error("This is an error"));
+        json = jsonb.toJson(WegasErrorMessage.error("This is an error"));
         assertPropertyEquals(json, "@class", "WegasErrorMessage");
 
-        json = mapper.writeValueAsString(new WegasScriptException("var a = tagada;", 123, "script exception", null));
+        json = jsonb.toJson(new WegasScriptException("var a = tagada;", 123, "script exception", null));
         assertPropertyEquals(json, "@class", "WegasScriptException");
     }
 
     @Test
-    public void testManagedModeResponse() throws JsonProcessingException {
+    public void testManagedModeResponse() {
         String payload = "DummyPayload";
         NumberDescriptor ndPayload = new NumberDescriptor("x");
         NumberInstance niPayload = new NumberInstance(5);
@@ -431,7 +429,7 @@ public class SerializationTest {
         managedResponse.getEvents().add(ex);
         managedResponse.getEvents().add(update);
 
-        String json = mapper.writeValueAsString(managedResponse);
+        String json = jsonb.toJson(managedResponse);
 
         System.out.println("JSON: " + json);
 
@@ -445,9 +443,9 @@ public class SerializationTest {
         ja.setEmail("alan@local");
         ja.setUsername("alan@local");
 
-        String strJa = mapper.writeValueAsString(ja);
+        String strJa = jsonb.toJson(ja);
 
-        mapper.readValue(strJa, AbstractAccount.class);
+        jsonb.fromJson(strJa, AbstractAccount.class);
 
         // 
     }

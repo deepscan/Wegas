@@ -7,21 +7,19 @@
  */
 package com.wegas.messaging.persistence;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.wegas.core.Helper;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.EntityComparators;
 import com.wegas.core.persistence.ListUtils;
 import com.wegas.core.persistence.variable.VariableInstance;
-import org.slf4j.LoggerFactory;
-
+import java.util.ArrayList;
+import java.util.List;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
-import java.util.ArrayList;
-import java.util.List;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Francois-Xavier Aeberhard (fx at red-agent.com)
@@ -55,7 +53,6 @@ public class InboxInstance extends VariableInstance {
      *  <property name="eclipselink.cache.shared.default" value="false"/>
 
      */
-    @JsonManagedReference("inbox-message")
     private List<Message> messages = new ArrayList<>();
     /**
      * @return the replies
@@ -68,7 +65,7 @@ public class InboxInstance extends VariableInstance {
     /**
      * @return unmodifiable messages list, sorted by date (newer first)
      */
-    @JsonIgnore
+    @JsonbTransient
     public List<Message> getSortedMessages() {
         return Helper.copyAndSort(this.messages, new EntityComparators.ReverseCreateTimeComparator<>());
     }

@@ -7,11 +7,6 @@
  */
 package com.wegas.mcq.persistence;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.Helper;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.exception.internal.WegasNoResultException;
@@ -23,9 +18,11 @@ import com.wegas.core.persistence.game.Script;
 import com.wegas.core.persistence.variable.DescriptorListI;
 import com.wegas.core.persistence.variable.Scripted;
 import com.wegas.core.persistence.variable.VariableDescriptor;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import java.util.ArrayList;
 import java.util.List;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 
 /**
@@ -38,9 +35,6 @@ import javax.persistence.*;
             @Index(columnList = "question_variabledescriptor_id")
         })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@JsonSubTypes(value = {
-    @JsonSubTypes.Type(name = "SingleResultChoiceDescriptor", value = SingleResultChoiceDescriptor.class)
-})
 public class ChoiceDescriptor extends VariableDescriptor<ChoiceInstance> implements Scripted {
 
     private static final long serialVersionUID = 1L;
@@ -49,24 +43,20 @@ public class ChoiceDescriptor extends VariableDescriptor<ChoiceInstance> impleme
      *
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
-    @JsonBackReference
+    @JsonbTransient
     private QuestionDescriptor question;
     /**
      *
      */
     @OneToMany(mappedBy = "choiceDescriptor", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @OrderBy("id")
     @OrderColumn
-    @JsonManagedReference
-    @JsonView(Views.EditorI.class)
+    @WegasJsonView(Views.EditorI.class)
     private List<Result> results = new ArrayList<>();
     /**
      *
      */
     @Basic(fetch = FetchType.EAGER) // CARE, lazy fetch on Basics has some trouble.
     @Lob
-    //@JsonView(Views.ExtendedI.class)
     private String description;
 
     /**
@@ -84,7 +74,7 @@ public class ChoiceDescriptor extends VariableDescriptor<ChoiceInstance> impleme
     private Integer maxReplies = null;
 
     @Override
-    @JsonIgnore
+    @JsonbTransient
     public List<Script> getScripts() {
         List<Script> ret = new ArrayList<>();
         //Avoid stream
@@ -465,7 +455,7 @@ public class ChoiceDescriptor extends VariableDescriptor<ChoiceInstance> impleme
         return question;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     @Override
     public DescriptorListI<? extends VariableDescriptor> getParent() {
         if (this.getQuestion() != null) {
@@ -478,7 +468,7 @@ public class ChoiceDescriptor extends VariableDescriptor<ChoiceInstance> impleme
     /**
      * @param question the question to set
      */
-    @JsonBackReference
+    @JsonbTransient
     public void setQuestion(QuestionDescriptor question) {
         this.question = question;
         if (question != null) { // Hum... question should never be null...

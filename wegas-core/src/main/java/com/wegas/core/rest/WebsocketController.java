@@ -7,11 +7,10 @@
  */
 package com.wegas.core.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wegas.core.Helper;
 import com.wegas.core.ejb.WebsocketFacade;
 import com.wegas.core.persistence.AbstractEntity;
-import com.wegas.core.rest.util.JacksonMapperProvider;
+import com.wegas.core.rest.util.JsonbProvider;
 import com.wegas.core.rest.util.PusherChannelExistenceWebhook;
 import com.wegas.core.rest.util.PusherWebhooks;
 import com.wegas.core.security.util.OnlineUser;
@@ -20,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.json.bind.Jsonb;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -123,8 +123,8 @@ public class WebsocketController {
     public void pusherChannelExistenceWebhook(@Context HttpServletRequest request, String rawHooks) throws IOException {
         websocketFacade.authenticateHookSource(request, rawHooks.getBytes());
 
-        ObjectMapper mapper = JacksonMapperProvider.getMapper();
-        PusherWebhooks hooks = mapper.readValue(rawHooks, PusherWebhooks.class);
+        Jsonb mapper = JsonbProvider.getMapper(null);
+        PusherWebhooks hooks = mapper.fromJson(rawHooks, PusherWebhooks.class);
 
         for (PusherChannelExistenceWebhook hook : hooks.getEvents()) {
             websocketFacade.pusherChannelExistenceWebhook(hook);

@@ -7,18 +7,17 @@
  */
 package com.wegas.core.persistence.variable.statemachine;
 
+import com.wegas.core.persistence.JsonSerializable;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  *
  * @author Cyril Junod (cyril.junod at gmail.com)
  */
 @Embeddable
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public class Coordinate implements Serializable {
+public class Coordinate implements Serializable, JsonSerializable {
 
     private static final long serialVersionUID = 1L;
     @Column(columnDefinition = "SMALLINT")

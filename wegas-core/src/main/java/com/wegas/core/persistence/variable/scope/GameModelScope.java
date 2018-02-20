@@ -7,7 +7,7 @@
  */
 package com.wegas.core.persistence.variable.scope;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.wegas.core.persistence.InstanceOwner;
 import com.wegas.core.persistence.game.Game;
@@ -37,7 +37,7 @@ public class GameModelScope extends AbstractScope<GameModel> {
      *
      */
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
-    @JsonIgnore
+    @JsonbTransient
     private VariableInstance variableInstance;
 
     @Override
@@ -59,7 +59,7 @@ public class GameModelScope extends AbstractScope<GameModel> {
      *
      * @param context
      */
-    @JsonIgnore
+    @JsonbTransient
     @Override
     public void propagateDefaultInstance(InstanceOwner context, boolean create) {
         if (context instanceof Player) {
@@ -136,7 +136,7 @@ public class GameModelScope extends AbstractScope<GameModel> {
     /**
      * @return the variableInstance
      */
-    @JsonIgnore
+    @JsonbTransient
     public VariableInstance getVariableInstance() {
         return variableInstance;
     }
@@ -144,7 +144,7 @@ public class GameModelScope extends AbstractScope<GameModel> {
     /**
      * @param variableInstance the variableInstance to set
      */
-    @JsonIgnore
+    @JsonbTransient
     public void setVariableInstance(VariableInstance variableInstance) {
         this.variableInstance = variableInstance;
     }

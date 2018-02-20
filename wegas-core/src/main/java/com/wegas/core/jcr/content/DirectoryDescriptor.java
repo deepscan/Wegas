@@ -7,7 +7,7 @@
  */
 package com.wegas.core.jcr.content;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import java.util.ArrayList;
 import java.util.List;
 import javax.jcr.NodeIterator;
@@ -50,7 +50,7 @@ public class DirectoryDescriptor extends AbstractContentDescriptor {
      *
      * @return true if the directory stands at /
      */
-    @JsonIgnore
+    @JsonbTransient
     public boolean isRootDirectory() {
         return this.fileSystemAbsolutePath.equals("/");
     }
@@ -78,7 +78,7 @@ public class DirectoryDescriptor extends AbstractContentDescriptor {
      *
      * @return @throws RepositoryException
      */
-    @JsonIgnore
+    @JsonbTransient
     public List<AbstractContentDescriptor> list() throws RepositoryException {
         NodeIterator nodeIterator = this.connector.listChildren(this.fileSystemAbsolutePath);
         List<AbstractContentDescriptor> files = new ArrayList<>();

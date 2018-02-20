@@ -7,7 +7,6 @@
  */
 package com.wegas.resourceManagement.persistence;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.ListUtils;
@@ -32,7 +31,6 @@ public class BurndownInstance extends VariableInstance {
     private static final long serialVersionUID = 1L;
 
     @OneToMany(mappedBy = "burndownInstance", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
     private List<Iteration> iterations = new ArrayList<>();
 
     /**

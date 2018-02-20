@@ -7,17 +7,16 @@
  */
 package com.wegas.core.security.persistence;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.game.Player;
 import com.wegas.core.persistence.game.Team;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.core.security.util.WegasEntityPermission;
 import com.wegas.core.security.util.WegasMembership;
 import com.wegas.core.security.util.WegasPermission;
 import java.util.*;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 
 /**
@@ -50,11 +49,10 @@ public class User extends AbstractEntity implements Comparable<User>, Permission
         CascadeType.PERSIST,
         CascadeType.REFRESH
     } /*, orphanRemoval = true */)
-    //@JsonManagedReference(value = "player-user")
-    @JsonIgnore
+    @JsonbTransient
     private List<Player> players = new ArrayList<>();
 
-    @JsonIgnore
+    @JsonbTransient
     @OneToMany(mappedBy = "createdBy", cascade = {
         CascadeType.DETACH,
         CascadeType.MERGE,
@@ -67,15 +65,14 @@ public class User extends AbstractEntity implements Comparable<User>, Permission
      *
      */
     @OneToMany(mappedBy = "user", cascade = {CascadeType.ALL}, orphanRemoval = true)
-    @JsonManagedReference(value = "user-account")
     private List<AbstractAccount> accounts = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
-    @JsonIgnore
+    @JsonbTransient
     private List<Permission> permissions = new ArrayList<>();
 
     @ManyToMany
-    @JsonView(Views.ExtendedI.class)
+    @WegasJsonView(Views.ExtendedI.class)
     @JoinTable(name = "users_roles",
             joinColumns = {
                 @JoinColumn(name = "users_id", referencedColumnName = "id")},
@@ -109,8 +106,7 @@ public class User extends AbstractEntity implements Comparable<User>, Permission
     /**
      * @return all user's players
      */
-    //@JsonIgnore
-    //@JsonManagedReference(value = "player-user")
+    //@JsonbTransient
     public List<Player> getPlayers() {
         return players;
     }
@@ -118,7 +114,6 @@ public class User extends AbstractEntity implements Comparable<User>, Permission
     /**
      * @param players the players to set
      */
-    //@JsonManagedReference(value = "player-user")
     public void setPlayers(List<Player> players) {
         this.players = players;
     }
@@ -156,7 +151,7 @@ public class User extends AbstractEntity implements Comparable<User>, Permission
     /**
      * @return first user account
      */
-    @JsonIgnore
+    @JsonbTransient
     public final AbstractAccount getMainAccount() {
         if (!this.accounts.isEmpty()) {
             return this.accounts.get(0);

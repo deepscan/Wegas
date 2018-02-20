@@ -7,7 +7,7 @@
  */
 package com.wegas.core.persistence;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import com.wegas.core.persistence.game.Player;
 import com.wegas.core.persistence.game.Populatable.Status;
 import com.wegas.core.persistence.variable.VariableInstance;
@@ -47,7 +47,7 @@ public interface InstanceOwner {
      *
      * @return all LIVE players who have write access to the owner instances
      */
-    @JsonIgnore
+    @JsonbTransient
     default public List<Player> getLivePlayers() {
         List<Player> players = this.getPlayers();
         List<Player> lives = new ArrayList<>(players.size());
@@ -72,7 +72,7 @@ public interface InstanceOwner {
      *
      * @return instances that belongs to this target only
      */
-    @JsonIgnore
+    @JsonbTransient
     public List<VariableInstance> getPrivateInstances();
 
     /**
@@ -80,7 +80,7 @@ public interface InstanceOwner {
      *
      * @return instances that belongs to this target and its children
      */
-    @JsonIgnore
+    @JsonbTransient
     public List<VariableInstance> getAllInstances();
 
     /**
@@ -88,7 +88,7 @@ public interface InstanceOwner {
      *
      * @return
      */
-    @JsonIgnore
+    @JsonbTransient
     public WegasPermission getAssociatedReadPermission();
 
     /**
@@ -96,6 +96,6 @@ public interface InstanceOwner {
      *
      * @return
      */
-    @JsonIgnore
+    @JsonbTransient
     public WegasPermission getAssociatedWritePermission();
 }

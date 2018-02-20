@@ -7,24 +7,16 @@
  */
 package com.wegas.core.persistence;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wegas.core.persistence.game.Game;
-import com.wegas.core.persistence.game.GameModel;
-import com.wegas.core.persistence.game.Player;
-import com.wegas.core.persistence.game.Team;
 import com.wegas.core.persistence.variable.Beanjection;
-import com.wegas.core.persistence.variable.VariableDescriptor;
-import com.wegas.core.persistence.variable.VariableInstance;
-import com.wegas.core.rest.util.JacksonMapperProvider;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.rest.util.JsonbProvider;
+import com.wegas.core.persistence.views.Views;
 import com.wegas.core.security.util.WegasPermission;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
+import javax.json.bind.Jsonb;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import org.eclipse.persistence.annotations.Cache;
@@ -35,15 +27,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author Francois-Xavier Aeberhard (fx at red-agent.com)
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonSubTypes(value = {
-    @JsonSubTypes.Type(name = "GameModel", value = GameModel.class),
-    @JsonSubTypes.Type(name = "Game", value = Game.class),
-    @JsonSubTypes.Type(name = "Player", value = Player.class),
-    @JsonSubTypes.Type(name = "Team", value = Team.class),
-    @JsonSubTypes.Type(name = "VariableDescriptor", value = VariableDescriptor.class),
-    @JsonSubTypes.Type(name = "VariableInstance", value = VariableInstance.class)
-})
 /**
  * Default EclipseLink coodinationType (SEND_OBJECT_CHANGE) leads to buggy coordination for some object (eg ChoiceDescriptor and result).
  * INVALIDATE_CHANGED_OBJECTS must be set to fix this problem.
@@ -52,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 @MappedSuperclass
 @Cache(coordinationType = CacheCoordinationType.INVALIDATE_CHANGED_OBJECTS)
-public abstract class AbstractEntity implements Serializable, Cloneable, WithPermission {
+public abstract class AbstractEntity implements Serializable, Cloneable, WithPermission, JsonSerializable {
 
     private static final long serialVersionUID = -2538440276749623728L;
 
@@ -73,7 +56,7 @@ public abstract class AbstractEntity implements Serializable, Cloneable, WithPer
     public abstract void merge(AbstractEntity other);
 
     @Transient
-    @JsonIgnore
+    @JsonbTransient
     private boolean persisted = false;
 
     /**
@@ -146,14 +129,9 @@ public abstract class AbstractEntity implements Serializable, Cloneable, WithPer
      * @throws IOException
      */
     public AbstractEntity duplicate(Class view) throws IOException {
-        //AnonymousEntity ae = (AnonymousEntity)super.clone();
-        //AbstractEntity ae = (AbstractEntity) SerializationUtils.clone(this);
-        //ae.setId(null);
-        ObjectMapper mapper = JacksonMapperProvider.getMapper();                // Retrieve a jackson mapper instance
-        String serialized = mapper.writerWithView(view).
-                writeValueAsString(this);                                       // Serialize the entity
-
-        return mapper.readValue(serialized, AbstractEntity.class);              // and deserialize it
+        Jsonb jsonb = JsonbProvider.getMapper(view);
+        String serialized = jsonb.toJson(this);
+        return jsonb.fromJson(serialized, this.getClass());
     }
 
     /**
@@ -165,32 +143,6 @@ public abstract class AbstractEntity implements Serializable, Cloneable, WithPer
      */
     public AbstractEntity duplicate() throws IOException {
         return this.duplicate(Views.Export.class);
-    }
-
-    /**
-     * Serialize to JSON
-     *
-     * @return JSON String representing this
-     *
-     * @throws IOException
-     */
-    public String toJson() throws IOException {
-        ObjectMapper mapper = JacksonMapperProvider.getMapper();
-        return mapper.writeValueAsString(this);
-    }
-
-    /**
-     * Serialize to JSON with view
-     *
-     * @param view the view to use to export this
-     *
-     * @return JSON String representing this
-     *
-     * @throws IOException
-     */
-    public String toJson(Class view) throws IOException {
-        ObjectMapper mapper = JacksonMapperProvider.getMapper();
-        return mapper.writerWithView(view).writeValueAsString(this);
     }
 
     /**
@@ -214,7 +166,7 @@ public abstract class AbstractEntity implements Serializable, Cloneable, WithPer
     public void updateCacheOnDelete(Beanjection beans) {
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public String getJSONClassName() {
         JsonTypeName annotation = this.getClass().getAnnotation(JsonTypeName.class);
 
@@ -235,19 +187,19 @@ public abstract class AbstractEntity implements Serializable, Cloneable, WithPer
      *
      * @return
      */
-    @JsonIgnore
+    @JsonbTransient
     @Override
     public Collection<WegasPermission> getRequieredCreatePermission() {
         return this.getRequieredUpdatePermission();
     }
 
-    @JsonIgnore
+    @JsonbTransient
     @Override
     public Collection<WegasPermission> getRequieredReadPermission() {
         return this.getRequieredUpdatePermission();
     }
 
-    @JsonIgnore
+    @JsonbTransient
     @Override
     public Collection<WegasPermission> getRequieredDeletePermission() {
         return this.getRequieredUpdatePermission();

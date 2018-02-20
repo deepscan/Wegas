@@ -7,14 +7,15 @@
  */
 package com.wegas.core.persistence.game;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wegas.core.Helper;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.Broadcastable;
 import com.wegas.core.persistence.DatedEntity;
 import com.wegas.core.persistence.InstanceOwner;
 import com.wegas.core.persistence.variable.VariableInstance;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.core.security.persistence.User;
 import com.wegas.core.security.util.WegasEntityPermission;
 import com.wegas.core.security.util.WegasPermission;
@@ -23,6 +24,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -58,9 +60,6 @@ import javax.validation.constraints.NotNull;
         }
 )
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonSubTypes(value = {
-    @JsonSubTypes.Type(name = "DebugTeam", value = DebugTeam.class)
-})
 @NamedQueries({
     @NamedQuery(name = "Team.findByGameIdAndName", query = "SELECT a FROM Team a WHERE a.name = :name AND a.gameTeams.game.id = :gameId"),
     @NamedQuery(name = "Team.findToPopulate", query = "SELECT a FROM Team a WHERE a.status LIKE 'WAITING' OR a.status LIKE 'RESCHEDULED'")
@@ -102,7 +101,7 @@ public class Team extends AbstractEntity implements Broadcastable, InstanceOwner
      *
      */
     @Lob
-    @JsonView(value = Views.EditorI.class)
+    @WegasJsonView(Views.EditorI.class)
     private String notes;
 
     /**
@@ -114,10 +113,9 @@ public class Team extends AbstractEntity implements Broadcastable, InstanceOwner
      *
      */
     @OneToMany(mappedBy = "team", cascade = {CascadeType.ALL}, orphanRemoval = true)
-    @JsonManagedReference(value = "player-team")
     private List<Player> players = new ArrayList<>();
 
-    @JsonIgnore
+    @JsonbTransient
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<VariableInstance> privateInstances = new ArrayList<>();
 
@@ -125,7 +123,7 @@ public class Team extends AbstractEntity implements Broadcastable, InstanceOwner
      * The game this team belongs to
      */
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JsonIgnore
+    @JsonbTransient
     private GameTeams gameTeams;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -161,7 +159,7 @@ public class Team extends AbstractEntity implements Broadcastable, InstanceOwner
         this.declaredSize = declaredSize;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public User getCreatedBy() {
         return createdBy;
     }
@@ -203,7 +201,7 @@ public class Team extends AbstractEntity implements Broadcastable, InstanceOwner
     /**
      * @return the gameModel
      */
-    @JsonBackReference(value = "game-team")
+    @JsonbTransient
     public Game getGame() {
         return getGameTeams().getGame();
     }
@@ -211,7 +209,7 @@ public class Team extends AbstractEntity implements Broadcastable, InstanceOwner
     /**
      * @param game the gameModel to set
      */
-    @JsonBackReference(value = "game-team")
+    @JsonbTransient
     public void setGame(Game game) {
         this.setGameTeams(game.getGameTeams());
     }
@@ -219,13 +217,12 @@ public class Team extends AbstractEntity implements Broadcastable, InstanceOwner
     /**
      * @return the players
      */
-    @JsonManagedReference(value = "player-team")
     @Override
     public List<Player> getPlayers() {
         return players;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     @Override
     public Player getAnyLivePlayer() {
         for (Player p : this.getPlayers()) {
@@ -239,7 +236,6 @@ public class Team extends AbstractEntity implements Broadcastable, InstanceOwner
     /**
      * @param p
      */
-    @JsonIgnore
     public void addPlayer(Player p) {
         this.players.add(p);
         p.setTeam(this);
@@ -249,7 +245,6 @@ public class Team extends AbstractEntity implements Broadcastable, InstanceOwner
     /**
      * @param players the players to set
      */
-    @JsonManagedReference(value = "player-team")
     public void setPlayers(List<Player> players) {
         this.players = players;
     }
@@ -345,7 +340,7 @@ public class Team extends AbstractEntity implements Broadcastable, InstanceOwner
     /**
      * @return String, the name of the game
      */
-    @JsonView(value = Views.Extended.class)
+    @WegasJsonView(Views.Extended.class)
     public String getGameName() {
         return this.getGame().getName();
     }
@@ -354,7 +349,7 @@ public class Team extends AbstractEntity implements Broadcastable, InstanceOwner
      * @return boolean, free if the game is played individualy, false if the
      *         game is played in team
      */
-    @JsonView(value = Views.Extended.class)
+    @WegasJsonView(Views.Extended.class)
     public boolean getGameFreeForAll() {
         return this.getGame().getProperties().getFreeForAll();
     }
@@ -362,7 +357,7 @@ public class Team extends AbstractEntity implements Broadcastable, InstanceOwner
     /**
      * @return String, the representation for the icon of the game
      */
-    @JsonView(value = Views.Extended.class)
+    @WegasJsonView(Views.Extended.class)
     public String getGameIcon() {
         return this.getGame().getProperties().getIconUri();
     }
@@ -403,7 +398,7 @@ public class Team extends AbstractEntity implements Broadcastable, InstanceOwner
     }
 
     @Override
-    @JsonIgnore
+    @JsonbTransient
     public String getChannel() {
         return Helper.TEAM_CHANNEL_PREFIX + this.getId();
     }

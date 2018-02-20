@@ -7,9 +7,6 @@
  */
 package com.wegas.core.persistence.variable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.Helper;
 import com.wegas.core.ejb.VariableDescriptorFacade;
 import com.wegas.core.exception.client.WegasErrorMessage;
@@ -25,25 +22,17 @@ import com.wegas.core.persistence.game.Game;
 import com.wegas.core.persistence.game.GameModel;
 import com.wegas.core.persistence.game.Player;
 import com.wegas.core.persistence.game.Team;
-import com.wegas.core.persistence.variable.primitive.*;
 import com.wegas.core.persistence.variable.scope.*;
-import com.wegas.core.persistence.variable.statemachine.StateMachineDescriptor;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.core.security.persistence.User;
 import com.wegas.core.security.util.WegasPermission;
-import com.wegas.mcq.persistence.ChoiceDescriptor;
-import com.wegas.mcq.persistence.QuestionDescriptor;
-import com.wegas.mcq.persistence.SingleResultChoiceDescriptor;
-import com.wegas.messaging.persistence.InboxDescriptor;
-import com.wegas.resourceManagement.persistence.BurndownDescriptor;
-import com.wegas.resourceManagement.persistence.ResourceDescriptor;
-import com.wegas.resourceManagement.persistence.TaskDescriptor;
-import com.wegas.reviewing.persistence.PeerReviewDescriptor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import org.eclipse.persistence.annotations.CacheIndex;
@@ -91,23 +80,6 @@ import org.slf4j.LoggerFactory;
 @CacheIndexes(value = {
     @CacheIndex(columnNames = {"GAMEMODEL_GAMEMODELID", "NAME"}) // bug uppercase: https://bugs.eclipse.org/bugs/show_bug.cgi?id=407834
 })
-@JsonSubTypes(value = {
-    @JsonSubTypes.Type(name = "ListDescriptor", value = ListDescriptor.class),
-    @JsonSubTypes.Type(name = "StringDescriptor", value = StringDescriptor.class),
-    @JsonSubTypes.Type(name = "TextDescriptor", value = TextDescriptor.class),
-    @JsonSubTypes.Type(name = "BooleanDescriptor", value = BooleanDescriptor.class),
-    @JsonSubTypes.Type(name = "NumberDescriptor", value = NumberDescriptor.class),
-    @JsonSubTypes.Type(name = "InboxDescriptor", value = InboxDescriptor.class),
-    @JsonSubTypes.Type(name = "FSMDescriptor", value = StateMachineDescriptor.class),
-    @JsonSubTypes.Type(name = "ResourceDescriptor", value = ResourceDescriptor.class),
-    @JsonSubTypes.Type(name = "TaskDescriptor", value = TaskDescriptor.class),
-    @JsonSubTypes.Type(name = "QuestionDescriptor", value = QuestionDescriptor.class),
-    @JsonSubTypes.Type(name = "ChoiceDescriptor", value = ChoiceDescriptor.class),
-    @JsonSubTypes.Type(name = "SingleResultChoiceDescriptor", value = SingleResultChoiceDescriptor.class),
-    @JsonSubTypes.Type(name = "ObjectDescriptor", value = ObjectDescriptor.class),
-    @JsonSubTypes.Type(name = "PeerReviewDescriptor", value = PeerReviewDescriptor.class),
-    @JsonSubTypes.Type(name = "BurndownDescriptor", value = BurndownDescriptor.class)
-})
 //@MappedSuperclass
 abstract public class VariableDescriptor<T extends VariableInstance> extends NamedEntity implements Searchable, LabelledEntity, Broadcastable, AcceptInjection {
 
@@ -123,11 +95,11 @@ abstract public class VariableDescriptor<T extends VariableInstance> extends Nam
      * replace some slow JPA mechanisms
      * <p>
      */
-    @JsonIgnore
+    @JsonbTransient
     @Transient
     private VariableDescriptorFacade variableDescriptorFacade;
 
-    @JsonIgnore
+    @JsonbTransient
     @Transient
     protected Beanjection beans;
 
@@ -135,7 +107,7 @@ abstract public class VariableDescriptor<T extends VariableInstance> extends Nam
      *
      */
     @Lob
-    @JsonView(value = Views.EditorI.class)
+    @WegasJsonView(Views.EditorI.class)
     @Column(name = "Descriptor_comments")
     private String comments;
 
@@ -144,16 +116,16 @@ abstract public class VariableDescriptor<T extends VariableInstance> extends Nam
      * correctly
      */
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, optional = false)
-    @JsonView(value = Views.EditorI.class)
+    @WegasJsonView(Views.EditorI.class)
     private VariableInstance defaultInstance;
 
     /**
      *
      */
-    //@JsonBackReference
     @ManyToOne
     @JoinColumn(name = "gamemodel_gamemodelid")
     @CacheIndex
+    @JsonbTransient
     private GameModel gameModel;
 
     /**
@@ -162,23 +134,23 @@ abstract public class VariableDescriptor<T extends VariableInstance> extends Nam
     @Id
     @Column(name = "variabledescriptor_id")
     @GeneratedValue
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "items_variabledescriptor_id")
-    @JsonIgnore
+    @JsonbTransient
     private ListDescriptor parentList;
 
     @ManyToOne
     @JoinColumn(name = "rootgamemodel_id")
-    @JsonIgnore
+    @JsonbTransient
     private GameModel rootGameModel;
 
     /**
      *
      */
-    //@JsonView(Views.EditorI.class)
+    //@WegasJsonView(Views.Editor.class)
     private String label;
 
     /*
@@ -187,10 +159,8 @@ abstract public class VariableDescriptor<T extends VariableInstance> extends Nam
      * updatable = true)
      */
     //@BatchFetch(BatchFetchType.JOIN)
-    //@JsonManagedReference
     @OneToOne(cascade = {CascadeType.ALL}, orphanRemoval = true, optional = false)
     @JoinFetch
-    //@JsonView(value = Views.WithScopeI.class)
     private AbstractScope scope;
 
     /**
@@ -284,7 +254,7 @@ abstract public class VariableDescriptor<T extends VariableInstance> extends Nam
     /**
      * @return the gameMobel this belongs to
      */
-    @JsonIgnore
+    @JsonbTransient
     public GameModel getGameModel() {
         return this.gameModel;
     }
@@ -296,7 +266,7 @@ abstract public class VariableDescriptor<T extends VariableInstance> extends Nam
         this.gameModel = gameModel;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public GameModel getRootGameModel() {
         return rootGameModel;
     }
@@ -319,7 +289,7 @@ abstract public class VariableDescriptor<T extends VariableInstance> extends Nam
         }
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public DescriptorListI<? extends VariableDescriptor> getParent() {
         if (parentList != null) {
             return parentList;
@@ -330,7 +300,7 @@ abstract public class VariableDescriptor<T extends VariableInstance> extends Nam
         }
     }
 
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     public String getParentDescriptorType() {
         if (this.getRootGameModel() != null) {
             return "GameModel";
@@ -343,7 +313,7 @@ abstract public class VariableDescriptor<T extends VariableInstance> extends Nam
         // nothing to do
     }
 
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     public Long getParentDescriptorId() {
         try {
             return this.getParent().getId();
@@ -359,7 +329,7 @@ abstract public class VariableDescriptor<T extends VariableInstance> extends Nam
     /**
      * @return id of gameModel this belongs to
      */
-    @JsonIgnore
+    @JsonbTransient
     public Long getGameModelId() {
         return this.gameModel.getId();
     }
@@ -386,7 +356,7 @@ abstract public class VariableDescriptor<T extends VariableInstance> extends Nam
      * @return instance of this
      *
      */
-    @JsonIgnore
+    @JsonbTransient
     public T findInstance(VariableInstance variableInstance, User user) {
 
         // if the given VariableInstance is a default instance, return the descripto default instance
@@ -425,7 +395,7 @@ abstract public class VariableDescriptor<T extends VariableInstance> extends Nam
     /**
      * @return get instance belonging to the current player
      */
-    @JsonIgnore
+    @JsonbTransient
     @Deprecated
     public T getInstance() {
         logger.error("VariableDescriptor#getInstance() is deprecated!");
@@ -439,7 +409,7 @@ abstract public class VariableDescriptor<T extends VariableInstance> extends Nam
      *
      * @return either the default instance of the one belonging to player
      */
-    @JsonIgnore
+    @JsonbTransient
     public T getInstance(Boolean defaultInstance, Player player) {
         if (defaultInstance) {
             return this.getDefaultInstance();
@@ -495,7 +465,6 @@ abstract public class VariableDescriptor<T extends VariableInstance> extends Nam
      * @fixme here we cannot use managed references since this.class is
      * abstract.
      */
-    //@JsonManagedReference
     public void setScope(AbstractScope scope) {
         this.scope = scope;
         if (scope != null) {

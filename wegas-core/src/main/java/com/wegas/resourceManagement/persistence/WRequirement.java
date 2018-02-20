@@ -7,16 +7,16 @@
  */
 package com.wegas.resourceManagement.persistence;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.Helper;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.core.security.util.WegasPermission;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -52,7 +52,7 @@ public class WRequirement extends AbstractEntity {
     @Id
     @Column(name = "wrequirement_id")
     @GeneratedValue
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     private Long id;
     /**
      *
@@ -98,7 +98,7 @@ public class WRequirement extends AbstractEntity {
      *
      */
     @OneToMany(mappedBy = "requirement", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @JsonbTransient
     private List<Activity> activities = new ArrayList<>();
 
     /**
@@ -250,7 +250,7 @@ public class WRequirement extends AbstractEntity {
      *
      * @return the task instance the requirement belongs to
      */
-    @JsonIgnore
+    @JsonbTransient
     public TaskInstance getTaskInstance() {
         return taskInstance;
     }
@@ -259,7 +259,7 @@ public class WRequirement extends AbstractEntity {
      *
      * @param taskInstance
      */
-    @JsonIgnore
+    @JsonbTransient
     public void setTaskInstance(TaskInstance taskInstance) {
         this.taskInstance = taskInstance;
     }

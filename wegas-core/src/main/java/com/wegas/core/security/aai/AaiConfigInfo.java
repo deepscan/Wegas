@@ -7,7 +7,7 @@
  */
 package com.wegas.core.security.aai;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import com.wegas.core.Helper;
 
 /**
@@ -27,7 +27,7 @@ public final class AaiConfigInfo {
     private boolean showButton;
     private String server;
     private String loginUrl;
-    @JsonIgnore
+    @JsonbTransient
     private String secret; // Do not export this one !
 
     private static volatile AaiConfigInfo instance = null;

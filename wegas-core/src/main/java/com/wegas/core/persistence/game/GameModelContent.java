@@ -7,48 +7,46 @@
  */
 package com.wegas.core.persistence.game;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.JsonSerializable;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import java.io.Serializable;
-import javax.persistence.*;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonView;
 import java.util.Objects;
+import javax.json.bind.annotation.JsonbTransient;
+import javax.persistence.*;
 
 /**
  *
  * @author Francois-Xavier Aeberhard (fx at red-agent.com)
  */
 @Entity
-
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @Table(indexes = {
     @Index(columnList = "clientscriptlibrary_gamemodelid"),
     @Index(columnList = "scriptlibrary_gamemodelid"),
     @Index(columnList = "csslibrary_gamemodelid"),
     @Index(columnList = "csslibrary_gamemodelid, scriptlibrary_gamemodelid, clientscriptlibrary_gamemodelid, contentKey", unique = true)
 })
-public class GameModelContent implements Serializable {
+public class GameModelContent implements Serializable, JsonSerializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "csslibrary_gamemodelid")
-    @JsonIgnore
+    @JsonbTransient
     private GameModel csslibrary_GameModel;
 
     @ManyToOne
     @JoinColumn(name = "scriptlibrary_gamemodelid")
-    @JsonIgnore
+    @JsonbTransient
     private GameModel scriptlibrary_GameModel;
 
     @ManyToOne
     @JoinColumn(name = "clientscriptlibrary_gamemodelid")
-    @JsonIgnore
+    @JsonbTransient
     private GameModel clientscriptlibrary_GameModel;
 
     private String contentKey;
@@ -63,7 +61,7 @@ public class GameModelContent implements Serializable {
     @Lob
     @Basic(optional = false, fetch = FetchType.EAGER) // CARE, lazy fetch on Basics has some trouble.
     //@Column(columnDefinition = "text")
-    //@JsonView({Views.Export.class})
+    //@WegasJsonView({Views.Export.class})
     private String content = "";
 
     /**
@@ -114,12 +112,12 @@ public class GameModelContent implements Serializable {
         return true;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public GameModel getClientscriptlibrary_GameModel() {
         return clientscriptlibrary_GameModel;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public void setClientscriptlibrary_GameModel(GameModel clientscriptlibrary_GameModel) {
         this.clientscriptlibrary_GameModel = clientscriptlibrary_GameModel;
     }
@@ -152,12 +150,12 @@ public class GameModelContent implements Serializable {
         this.content = content;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public GameModel getCsslibrary_GameModel() {
         return csslibrary_GameModel;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public void setCsslibrary_GameModel(GameModel csslibrary_GameModel) {
         this.csslibrary_GameModel = csslibrary_GameModel;
     }
@@ -176,27 +174,27 @@ public class GameModelContent implements Serializable {
         this.id = id;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public String getContentKey() {
         return contentKey;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public void setContentKey(String contentKey) {
         this.contentKey = contentKey;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public GameModel getScriptlibrary_GameModel() {
         return scriptlibrary_GameModel;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public void setScriptlibrary_GameModel(GameModel scriptlibrary_GameModel) {
         this.scriptlibrary_GameModel = scriptlibrary_GameModel;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     private GameModel getGameModel() {
         if (this.clientscriptlibrary_GameModel != null) {
             return clientscriptlibrary_GameModel;

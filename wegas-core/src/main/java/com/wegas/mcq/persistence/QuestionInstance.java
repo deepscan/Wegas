@@ -7,7 +7,7 @@
  */
 package com.wegas.mcq.persistence;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import com.wegas.core.Helper;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
@@ -81,12 +81,12 @@ public class QuestionInstance extends VariableInstance {
     /**
      * @return unmodifiable reply list, ordered by createdTime
      */
-    @JsonIgnore
+    @JsonbTransient
     public List<Reply> getSortedReplies() {
         return Helper.copyAndSort(this.getReplies(), new EntityComparators.CreateTimeComparator<>());
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public List<Reply> getSortedReplies(Player p) {
         return Helper.copyAndSort(this.getReplies(p), new EntityComparators.CreateTimeComparator<>());
     }
@@ -106,7 +106,7 @@ public class QuestionInstance extends VariableInstance {
         return replies;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public List<Reply> getReplies() {
         InstanceOwner owner = this.getOwner();
         return this.getReplies(owner != null ? owner.getAnyLivePlayer() : null);
@@ -174,7 +174,7 @@ public class QuestionInstance extends VariableInstance {
         return ((QuestionDescriptor) this.getDescriptor()).item(index);
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public boolean isSelectable() {
         QuestionDescriptor qd = (QuestionDescriptor) this.findDescriptor();
         Integer maxReplies = qd.getMaxReplies();

@@ -7,20 +7,18 @@
  */
 package com.wegas.core.persistence.variable.statemachine;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.game.Script;
 import com.wegas.core.persistence.variable.Scripted;
 import com.wegas.core.persistence.variable.Searchable;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.core.security.util.WegasPermission;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 
 /**
@@ -29,10 +27,6 @@ import javax.persistence.*;
 @Entity
 @Access(AccessType.FIELD)
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonSubTypes(value = {
-    @JsonSubTypes.Type(name = "DialogueTransition", value = DialogueTransition.class)
-})
 @Table(
         indexes = {
             @Index(columnList = "state_id")
@@ -47,7 +41,7 @@ public class Transition extends AbstractEntity implements Searchable, Scripted {
      */
     @Id
     @GeneratedValue
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     private Long id;
 
     @Version
@@ -65,7 +59,7 @@ public class Transition extends AbstractEntity implements Searchable, Scripted {
     /**
      *
      */
-    @JsonView(Views.EditorI.class)
+    @WegasJsonView(Views.EditorI.class)
     private Integer index = 0;
 
     /**
@@ -73,7 +67,7 @@ public class Transition extends AbstractEntity implements Searchable, Scripted {
      */
     private Long nextStateId;
 
-    @JsonIgnore
+    @JsonbTransient
     @ManyToOne(fetch = FetchType.LAZY, cascade = {})
     @JoinColumn(name = "state_id", referencedColumnName = "state_id")
     private State state;
@@ -88,7 +82,7 @@ public class Transition extends AbstractEntity implements Searchable, Scripted {
         @AttributeOverride(name = "lang", column
                 = @Column(name = "onTransition_language"))
     })
-    @JsonView(Views.EditorI.class)
+    @WegasJsonView(Views.EditorI.class)
     private Script preStateImpact;
 
     /**

@@ -7,7 +7,7 @@
  */
 package com.wegas.core.security.jparealm;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.security.persistence.AbstractAccount;
@@ -42,12 +42,12 @@ public class JpaAccount extends AbstractAccount {
      */
     @Basic(optional = false)
     @Column(length = 255)
-    @JsonIgnore
+    @JsonbTransient
     private String passwordHex;
     /**
      *
      */
-    @JsonIgnore
+    @JsonbTransient
     private String salt;
 
     @Override

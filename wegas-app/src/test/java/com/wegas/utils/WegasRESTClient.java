@@ -7,12 +7,9 @@
  */
 package com.wegas.utils;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wegas.core.exception.client.WegasErrorMessage;
-import com.wegas.core.rest.util.JacksonMapperProvider;
+import com.wegas.core.persistence.WegasJsonTypeName;
+import com.wegas.core.rest.util.JsonbProvider;
 import com.wegas.core.security.jparealm.JpaAccount;
 import com.wegas.core.security.persistence.Role;
 import com.wegas.core.security.persistence.User;
@@ -20,9 +17,13 @@ import com.wegas.core.security.util.AuthenticationInformation;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.json.bind.Jsonb;
+import javax.json.bind.annotation.JsonbTransient;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
@@ -55,8 +56,8 @@ public class WegasRESTClient {
     private final HttpClient client;
     private final String baseURL;
 
-    private static ObjectMapper getObjectMapper() {
-        return JacksonMapperProvider.getMapper();
+    private static Jsonb getJsonb() {
+        return JsonbProvider.getMapper(null);
     }
 
     public WegasRESTClient(String baseURL) {
@@ -67,8 +68,7 @@ public class WegasRESTClient {
     public Map<String, Role> getRoles() throws IOException {
         Map<String, Role> roles = new HashMap<>();
 
-        for (Role r : (List<Role>) get("/rest/Role", new TypeReference<List<Role>>() {
-        })) {
+        for (Role r : (List<Role>) get("/rest/Role", new ArrayList<Role>())){
             roles.put(r.getName(), r);
         }
         return roles;
@@ -84,7 +84,7 @@ public class WegasRESTClient {
 
         String post_asString = this.post_asString("/rest/User/Signup", ja);
         TestAuthenticationInformation authInfo = getAuthInfo(email, password);
-        User user = getObjectMapper().readValue(post_asString, User.class);
+        User user = getJsonb().fromJson(post_asString, User.class);
         authInfo.setUserId(user.getId());
         authInfo.setAccountId(user.getMainAccount().getId());
 
@@ -132,12 +132,13 @@ public class WegasRESTClient {
         }
     }
 
-    public <T> T get(String url, TypeReference valueTypeRef) throws IOException {
-        return getObjectMapper().readValue(this.get(url), valueTypeRef);
+    public <T> T get(String url, T typeReference) throws IOException {
+        Type type = typeReference.getClass().getGenericSuperclass();
+        return getJsonb().fromJson(this.get(url), type);
     }
 
     public <T> T get(String url, Class<T> valueType) throws IOException {
-        return getObjectMapper().readValue(this.get(url), valueType);
+        return getJsonb().fromJson(this.get(url), valueType);
     }
 
     public String get(String url) throws IOException {
@@ -157,7 +158,7 @@ public class WegasRESTClient {
     }
 
     private HttpResponse _put(String url, Object object) throws IOException {
-        return this.sendRequest(url, "PUT", (object != null ? getObjectMapper().writeValueAsString(object) : null));
+        return this.sendRequest(url, "PUT", (object != null ? getJsonb().toJson(object) : null));
     }
 
     public String post(String url, Object object) throws IOException {
@@ -165,22 +166,22 @@ public class WegasRESTClient {
         return this.getEntityAsString(response.getEntity());
     }
 
-    public <T> T post(String url, Object object, TypeReference valueType) throws IOException {
+    public <T> T post(String url, Object object, Object typeRef) throws IOException {
         String post = this.post(url, object);
-        return getObjectMapper().readValue(post, valueType);
+        return getJsonb().fromJson(post, typeRef.getClass().getGenericSuperclass());
     }
 
     public <T> T post(String url, Object object, Class<T> valueType) throws IOException {
         String post = this.post(url, object);
-        return getObjectMapper().readValue(post, valueType);
+        return getJsonb().fromJson(post, valueType);
     }
 
     private HttpResponse _post(String url, Object object) throws IOException {
-        return this.sendRequest(url, "POST", (object != null ? getObjectMapper().writeValueAsString(object) : null));
+        return this.sendRequest(url, "POST", (object != null ? getJsonb().toJson(object) : null));
     }
 
     private String post_asString(String url, Object object) throws IOException {
-        return this.postJSON_asString(url, getObjectMapper().writeValueAsString(object));
+        return this.postJSON_asString(url, getJsonb().toJson(object));
     }
 
     private HttpResponse sendRequest(String url, String method, String jsonContent) throws IOException {
@@ -215,7 +216,7 @@ public class WegasRESTClient {
 
     public <T> T postJSON_asString(String url, String jsonContent, Class<T> valueType) throws IOException {
         String postJSON_asString = this.postJSON_asString(url, jsonContent);
-        return getObjectMapper().readValue(postJSON_asString, valueType);
+        return getJsonb().fromJson(postJSON_asString, valueType);
     }
 
     public String postJSON_asString(String url, String jsonContent) throws IOException {
@@ -226,7 +227,7 @@ public class WegasRESTClient {
 
     public <T> T postJSONFromFile(String url, String jsonFile, Class<T> valueType) throws IOException {
         String postJSONFromFile = this.postJSONFromFile(url, jsonFile);
-        return getObjectMapper().readValue(postJSONFromFile, valueType);
+        return getJsonb().fromJson(postJSONFromFile, valueType);
     }
 
     public String postJSONFromFile(String url, String jsonFile) throws IOException {
@@ -244,13 +245,13 @@ public class WegasRESTClient {
 
     }
 
-    @JsonTypeName("AuthenticationInformation")
+    @WegasJsonTypeName("AuthenticationInformation")
     public static class TestAuthenticationInformation extends AuthenticationInformation {
 
-        @JsonIgnore
+        @JsonbTransient
         private Long userId;
 
-        @JsonIgnore
+        @JsonbTransient
         private Long accountId;
 
         public Long getUserId() {

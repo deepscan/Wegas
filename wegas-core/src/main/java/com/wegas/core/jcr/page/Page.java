@@ -7,7 +7,7 @@
  */
 package com.wegas.core.jcr.page;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -103,7 +103,7 @@ public class Page {
     /**
      * @param content
      */
-    @JsonIgnore
+    @JsonbTransient
     public final void setContent(JsonNode content) {
         this.content = content;
         this.extractAttrs();
@@ -121,7 +121,7 @@ public class Page {
      *
      * @throws IOException
      */
-    @JsonIgnore
+    @JsonbTransient
     public final void setContent(String content) {
         try {
             this.content = getMapper().readTree(content);
@@ -148,7 +148,7 @@ public class Page {
     /**
      *
      */
-    @JsonIgnore
+    @JsonbTransient
     private void extractAttrs() {
         JsonNode node;
         node = this.content.path("@name");

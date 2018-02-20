@@ -7,7 +7,7 @@
  */
 package com.wegas.core.persistence.variable.primitive;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import com.wegas.core.exception.client.WegasOutOfBoundException;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.game.Player;
@@ -107,7 +107,7 @@ public class NumberDescriptor extends VariableDescriptor<NumberInstance> {
      *
      * @return the max value
      */
-    @JsonIgnore
+    @JsonbTransient
     @Transient
     public double getMaxValueD() {
         return this.maxValue;
@@ -117,7 +117,7 @@ public class NumberDescriptor extends VariableDescriptor<NumberInstance> {
      *
      * @return the minimum value
      */
-    @JsonIgnore
+    @JsonbTransient
     @Transient
     public double getMinValueD() {
         return this.minValue;

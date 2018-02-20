@@ -7,19 +7,18 @@
  */
 package com.wegas.core.persistence.variable.statemachine;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.game.Script;
-import com.wegas.core.rest.util.Views;
-
-import javax.persistence.Entity;
-import javax.persistence.Transient;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Transient;
 
 /**
  * @author Cyril Junod (cyril.junod at gmail.com)
@@ -31,26 +30,26 @@ public class TriggerDescriptor extends StateMachineDescriptor {
     /**
      *
      */
-    @JsonView(Views.EditorI.class)
+    @WegasJsonView(Views.EditorI.class)
     private Boolean oneShot = false;
 
     /**
      *
      */
-    @JsonView(Views.EditorI.class)
+    @WegasJsonView(Views.EditorI.class)
     @Column(columnDefinition = "boolean default false")
     private Boolean disableSelf = true;
     /**
      *
      */
     @Transient
-    @JsonView(Views.EditorI.class)
+    @WegasJsonView(Views.EditorI.class)
     private Script triggerEvent;
     /**
      *
      */
     @Transient
-    @JsonView(Views.EditorI.class)
+    @WegasJsonView(Views.EditorI.class)
     private Script postTriggerEvent;
 
     /**
@@ -133,7 +132,7 @@ public class TriggerDescriptor extends StateMachineDescriptor {
      * @see StateMachineDescriptor#getStates
      */
     @Override
-    @JsonIgnore
+    @JsonbTransient
     public Map<Long, State> getStates() {
         return super.getStates();
     }

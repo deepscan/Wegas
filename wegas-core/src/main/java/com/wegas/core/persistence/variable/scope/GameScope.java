@@ -32,7 +32,7 @@ public class GameScope extends AbstractScope<Game> {
     @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "gameScope")
     @JoinColumn(name = "gamescope_id", referencedColumnName = "id")
     @MapKeyJoinColumn(name = "gamevariableinstances_key", referencedColumnName = "game_id")
-    @JsonIgnore
+    @JsonbTransient
     private Map<Game, VariableInstance> gameVariableInstances = new HashMap<>();*/
     /**
      *

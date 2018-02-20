@@ -7,14 +7,9 @@
  */
 package com.wegas.core.rest.util;
 
-import com.fasterxml.jackson.jaxrs.base.JsonMappingExceptionMapper;
-import com.fasterxml.jackson.jaxrs.base.JsonParseExceptionMapper;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
-import javax.ws.rs.ext.MessageBodyReader;
-import javax.ws.rs.ext.MessageBodyWriter;
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.internal.InternalProperties;
 import org.glassfish.jersey.internal.util.PropertiesHelper;
@@ -23,6 +18,7 @@ import org.glassfish.jersey.internal.util.PropertiesHelper;
 /**
  *
  * @author Maxence Laurent (maxence.laurent at gmail.com)
+ * @deprecated
  */
 public class JacksonFeature implements Feature {
 
@@ -44,12 +40,12 @@ public class JacksonFeature implements Feature {
                 JSON_FEATURE);
 
         // Register Jackson.
-        if (!config.isRegistered(JacksonJsonProvider.class)) {
+        //if (!config.isRegistered(JacksonJsonProvider.class)) {
             // add the default Jackson exception mappers
-            context.register(JsonParseExceptionMapper.class);
-            context.register(JsonMappingExceptionMapper.class);
-            context.register(JacksonJsonProvider.class, MessageBodyReader.class, MessageBodyWriter.class);
-        }
+       //     context.register(JsonParseExceptionMapper.class);
+       //     context.register(JsonMappingExceptionMapper.class);
+       //     context.register(JacksonJsonProvider.class, MessageBodyReader.class, MessageBodyWriter.class);
+       // }
 
         return true;
     }

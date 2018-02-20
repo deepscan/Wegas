@@ -7,18 +7,16 @@
  */
 package com.wegas.reviewing.persistence.evaluation;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.NamedEntity;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.core.security.util.WegasPermission;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 
 /**
@@ -37,15 +35,10 @@ import javax.persistence.*;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(
         uniqueConstraints = {},
-        indexes= {
+        indexes = {
             @Index(columnList = "container_id")
         }
 )
-@JsonSubTypes(value = {
-    @JsonSubTypes.Type(value = TextEvaluationDescriptor.class),
-    @JsonSubTypes.Type(value = CategorizedEvaluationDescriptor.class),
-    @JsonSubTypes.Type(value = GradeDescriptor.class)
-})
 public abstract class EvaluationDescriptor<T extends EvaluationInstance> extends NamedEntity {
 
     @OneToMany(mappedBy = "evaluationDescriptor", cascade = CascadeType.REMOVE, orphanRemoval = true)
@@ -57,7 +50,7 @@ public abstract class EvaluationDescriptor<T extends EvaluationInstance> extends
      */
     @Id
     @GeneratedValue
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     private Long id;
 
     /**
@@ -80,7 +73,7 @@ public abstract class EvaluationDescriptor<T extends EvaluationInstance> extends
      * the parent
      */
     @ManyToOne
-    @JsonBackReference
+    @JsonbTransient
     private EvaluationDescriptorContainer container;
 
     /**
@@ -188,7 +181,7 @@ public abstract class EvaluationDescriptor<T extends EvaluationInstance> extends
     /**
      * @return the container that define this evaluation
      */
-    @JsonIgnore
+    @JsonbTransient
     public EvaluationDescriptorContainer getContainer() {
         return this.container;
     }
@@ -202,7 +195,7 @@ public abstract class EvaluationDescriptor<T extends EvaluationInstance> extends
         this.container = container;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public List<EvaluationInstance> getEvaluationInstances() {
         return evaluationInstances;
     }
@@ -216,7 +209,7 @@ public abstract class EvaluationDescriptor<T extends EvaluationInstance> extends
      *
      * @return new evaluationInstance
      */
-    @JsonIgnore
+    @JsonbTransient
     public T createInstance() {
         T newInstance = this.newInstance();
         newInstance.setDescriptor(this);

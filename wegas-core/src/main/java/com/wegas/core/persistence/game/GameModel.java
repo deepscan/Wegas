@@ -20,7 +20,8 @@ import com.wegas.core.persistence.NamedEntity;
 import com.wegas.core.persistence.variable.DescriptorListI;
 import com.wegas.core.persistence.variable.VariableDescriptor;
 import com.wegas.core.persistence.variable.VariableInstance;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.core.security.persistence.User;
 import com.wegas.core.security.util.WegasEntityPermission;
 import com.wegas.core.security.util.WegasMembership;
@@ -28,6 +29,7 @@ import com.wegas.core.security.util.WegasPermission;
 import java.util.*;
 import java.util.Map.Entry;
 import javax.jcr.RepositoryException;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
 import org.apache.shiro.SecurityUtils;
@@ -73,7 +75,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     @Id
     @Column(name = "gamemodelid")
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     private Long id;
 
     /**
@@ -88,7 +90,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
      */
     @Lob
     //@Basic(fetch = FetchType.LAZY)
-    @JsonView(Views.ExtendedI.class)
+    @WegasJsonView(Views.ExtendedI.class)
     private String description;
 
     /**
@@ -104,7 +106,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
      */
     @Lob
     //@Basic(fetch = FetchType.LAZY)
-    @JsonView(Views.ExtendedI.class)
+    @WegasJsonView(Views.ExtendedI.class)
     private String comments;
 
     /**
@@ -118,26 +120,26 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
      *
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
+    @JsonbTransient
     private User createdBy;
 
     /**
      * Link to original gameModel for "PLAY" gameModel
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
+    @JsonbTransient
     private GameModel basedOn;
 
     /*
      *
      *
-     * @JsonIgnore private Boolean template = true;
+     * @JsonbTransient private Boolean template = true;
      */
     /**
      *
      */
     @OneToMany(mappedBy = "gameModel", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
+    @JsonbTransient
     private Set<VariableDescriptor> variableDescriptors = new HashSet<>();
 
     /**
@@ -148,13 +150,12 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
     @JoinColumn(name = "rootgamemodel_id")
     @OrderColumn
-    //@JsonManagedReference
     private List<VariableDescriptor> childVariableDescriptors = new ArrayList<>();
 
     /**
      * All gameModelScoped instances
      */
-    @JsonIgnore
+    @JsonbTransient
     @OneToMany(mappedBy = "gameModel", cascade = CascadeType.ALL)
     private List<VariableInstance> privateInstances = new ArrayList<>();
 
@@ -162,9 +163,8 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
      *
      */
     @OneToMany(mappedBy = "gameModel", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    @JsonIgnore
-    //@JsonView(Views.ExportI.class)
+    @JsonbTransient
+    //@WegasJsonView(Views.ExportI.class)
     private List<Game> games = new ArrayList<>();
 
     /**
@@ -172,7 +172,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
      */
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "scriptlibrary_gamemodelid")
-    @JsonView({Views.ExportI.class})
+    @WegasJsonView(Views.ExportI.class)
     private List<GameModelContent> scriptLibrary = new ArrayList<>();
 
     /**
@@ -180,7 +180,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
      */
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "csslibrary_gamemodelid")
-    @JsonView({Views.ExportI.class})
+    @WegasJsonView(Views.ExportI.class)
     private List<GameModelContent> cssLibrary = new ArrayList<>();
 
     /**
@@ -188,7 +188,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
      */
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "clientscriptlibrary_gamemodelid")
-    @JsonView({Views.ExportI.class})
+    @WegasJsonView(Views.ExportI.class)
     private List<GameModelContent> clientScriptLibrary = new ArrayList<>();
 
     /**
@@ -202,7 +202,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
      * the same time.
      */
     @Transient
-    @JsonView({Views.ExportI.class})
+    @WegasJsonView(Views.ExportI.class)
     private Map<String, JsonNode> pages;
 
     /**
@@ -326,7 +326,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
      *
      * @return true if current user has view permission on this
      */
-    @JsonView(Views.LobbyI.class)
+    @WegasJsonView(Views.LobbyI.class)
     public Boolean getCanView() {
         if (canView != null) {
             return canView;
@@ -339,7 +339,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     /**
      * @return true if current user has edit permission on this
      */
-    @JsonView(Views.LobbyI.class)
+    @WegasJsonView(Views.LobbyI.class)
     public Boolean getCanEdit() {
         if (canEdit != null) {
             return canEdit;
@@ -353,7 +353,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     /**
      * @return true if current user has duplicate permission on this
      */
-    @JsonView(Views.LobbyI.class)
+    @WegasJsonView(Views.LobbyI.class)
     public Boolean getCanDuplicate() {
         if (canDuplicate != null) {
             return canDuplicate;
@@ -367,7 +367,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     /**
      * @return true if current user has instantiate permission on this
      */
-    @JsonView(Views.LobbyI.class)
+    @WegasJsonView(Views.LobbyI.class)
     public Boolean getCanInstantiate() {
         if (canInstantiate != null) {
             return canInstantiate;
@@ -419,7 +419,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     /**
      * @return Current GameModel's status
      */
-    @JsonIgnore
+    @JsonbTransient
     public Status getStatus() {
         return status;
     }
@@ -429,7 +429,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
      *
      * @param status status to set
      */
-    @JsonIgnore
+    @JsonbTransient
     public void setStatus(Status status) {
         this.status = status;
     }
@@ -439,7 +439,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
      *
      * @return all variable descriptors
      */
-    @JsonIgnore
+    @JsonbTransient
     public Set<VariableDescriptor> getVariableDescriptors() {
         return variableDescriptors;
     }
@@ -478,7 +478,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
      *         hierarchy (other VariableDescriptor can be placed inside of a
      *         ListDescriptor's items List)
      */
-    @JsonIgnore
+    @JsonbTransient
     public List<VariableDescriptor> getChildVariableDescriptors() {
         return childVariableDescriptors;
     }
@@ -502,7 +502,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     /**
      * @return the games
      */
-    @JsonIgnore
+    @JsonbTransient
     public List<Game> getGames() {
         return games;
     }
@@ -529,7 +529,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     /**
      * @return the scriptLibrary
      */
-    @JsonIgnore
+    @JsonbTransient
     public List<GameModelContent> getScriptLibraryList() {
         return scriptLibrary;
     }
@@ -537,7 +537,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     /**
      * @param scriptLibrary the scriptLibrary to set
      */
-    @JsonIgnore
+    @JsonbTransient
     public void setScriptLibraryList(List<GameModelContent> scriptLibrary) {
         this.scriptLibrary = scriptLibrary;
     }
@@ -545,7 +545,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     /**
      * @return all players from all teams and all games
      */
-    @JsonIgnore
+    @JsonbTransient
     @Override
     public List<Player> getPlayers() {
         List<Player> players = new ArrayList<>();
@@ -556,7 +556,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     }
 
     @Override
-    @JsonIgnore
+    @JsonbTransient
     public Player getAnyLivePlayer() {
         for (Game game : this.getGames()) {
             Player p = game.getAnyLivePlayer();
@@ -598,7 +598,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     /**
      * @return the cssLibrary
      */
-    @JsonIgnore
+    @JsonbTransient
     public List<GameModelContent> getCssLibraryList() {
         return cssLibrary;
     }
@@ -606,7 +606,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     /**
      * @param cssLibrary the cssLibrary to set
      */
-    @JsonIgnore
+    @JsonbTransient
     public void setCssLibraryList(List<GameModelContent> cssLibrary) {
         this.cssLibrary = cssLibrary;
     }
@@ -637,7 +637,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     /**
      * @return the clientScriptLibrary
      */
-    @JsonIgnore
+    @JsonbTransient
     public List<GameModelContent> getClientScriptLibraryList() {
         return clientScriptLibrary;
     }
@@ -711,7 +711,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     /**
      * @param clientScriptLibrary the clientScriptLibrary to set
      */
-    @JsonIgnore
+    @JsonbTransient
     public void setClientScriptLibraryList(List<GameModelContent> clientScriptLibrary) {
         this.clientScriptLibrary = clientScriptLibrary;
     }
@@ -743,7 +743,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     }
 
     @Override
-    @JsonView(Views.ExportI.class)
+    @WegasJsonView(Views.ExportI.class)
     public List<VariableDescriptor> getItems() {
         return this.getChildVariableDescriptors();
     }
@@ -754,7 +754,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     }
 
     @Override
-    @JsonIgnore
+    @JsonbTransient
     public GameModel getGameModel() {
         return this;
     }
@@ -802,7 +802,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     /**
      * @return the createdBy
      */
-    @JsonIgnore
+    @JsonbTransient
     public User getCreatedBy() {
         return createdBy;
     }
@@ -859,7 +859,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     }
 
     @Override
-    @JsonIgnore
+    @JsonbTransient
     public String getChannel() {
         return Helper.GAMEMODEL_CHANNEL_PREFIX + getId();
     }

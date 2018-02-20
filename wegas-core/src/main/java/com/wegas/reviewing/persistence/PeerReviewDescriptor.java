@@ -7,16 +7,16 @@
  */
 package com.wegas.reviewing.persistence;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.game.Player;
 import com.wegas.core.persistence.variable.Beanjection;
 import com.wegas.core.persistence.variable.VariableDescriptor;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.reviewing.persistence.evaluation.EvaluationDescriptor;
 import com.wegas.reviewing.persistence.evaluation.EvaluationDescriptorContainer;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -110,7 +110,7 @@ public class PeerReviewDescriptor extends VariableDescriptor<PeerReviewInstance>
      * the variable to review
      */
     @ManyToOne
-    @JsonIgnore
+    @JsonbTransient
     private VariableDescriptor toReview;
 
     /**
@@ -141,7 +141,7 @@ public class PeerReviewDescriptor extends VariableDescriptor<PeerReviewInstance>
      * not make any sense
      */
     @OneToOne(cascade = CascadeType.ALL)
-    @JsonView(Views.EditorI.class)
+    @WegasJsonView(Views.EditorI.class)
     @NotNull
     private EvaluationDescriptorContainer feedback;
 
@@ -150,7 +150,7 @@ public class PeerReviewDescriptor extends VariableDescriptor<PeerReviewInstance>
      * allowed
      */
     @OneToOne(cascade = CascadeType.ALL)
-    @JsonView(Views.EditorI.class)
+    @WegasJsonView(Views.EditorI.class)
     @NotNull
     private EvaluationDescriptorContainer fbComments;
 
@@ -209,7 +209,7 @@ public class PeerReviewDescriptor extends VariableDescriptor<PeerReviewInstance>
      * @return the name of the variable that will be reviewed, as imported from
      *         a JSON
      */
-    @JsonIgnore
+    @JsonbTransient
     public String getImportedToReviewName() {
         return toReviewName;
     }

@@ -5,7 +5,17 @@
  * Copyright (c) 2013-2018 School of Business and Engineering Vaud, Comem, MEI
  * Licensed under the MIT License
  */
-package com.wegas.core.rest.util;
+package com.wegas.core.persistence.views;
+
+import com.fasterxml.jackson.annotation.JsonView;
+import static com.wegas.core.security.persistence.Permission.logger;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import javax.json.bind.config.PropertyVisibilityStrategy;
 
 /**
  * @author Francois-Xavier Aeberhard (fx at red-agent.com)
@@ -13,39 +23,45 @@ package com.wegas.core.rest.util;
 public class Views {
 
     /**
+     * A View to rule them all
+     */
+    public interface WegasView {
+    }
+
+    /**
      * Index minimal (w/ ids)
      */
-    public interface IndexI {
+    public interface IndexI extends WegasView {
     }
 
     /**
      * FUCK
      */
-    public interface LobbyI {
+    public interface LobbyI extends WegasView {
     }
 
     /**
      * Potential heavy text Extended (w/ blob texts)
      */
-    public interface ExtendedI {
+    public interface ExtendedI extends WegasView {
     }
 
     /**
      * Relevant only to editors EditorI view (w/ scripts, impacts)
      */
-    public interface EditorI {
+    public interface EditorI extends WegasView {
     }
 
     /**
      * TO be included in exports
      */
-    public interface ExportI {
+    public interface ExportI extends WegasView {
     }
 
     /**
      * Provides VariableDescriptor instances
      */
-    public interface InstanceI {
+    public interface InstanceI extends WegasView {
     }
 
     /**
@@ -80,5 +96,6 @@ public class Views {
      */
     public static class Export implements EditorI, ExtendedI, ExportI {
     }
+
 
 }

@@ -7,8 +7,6 @@
  */
 package com.wegas.mcq.persistence;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.Helper;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
@@ -16,7 +14,8 @@ import com.wegas.core.persistence.game.GameModel;
 import com.wegas.core.persistence.game.Player;
 import com.wegas.core.persistence.variable.DescriptorListI;
 import com.wegas.core.persistence.variable.VariableDescriptor;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import static java.lang.Boolean.FALSE;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +50,7 @@ public class QuestionDescriptor extends VariableDescriptor<QuestionInstance> imp
      */
     @Lob
     @Basic(fetch = FetchType.EAGER) // CARE, lazy fetch on Basics has some trouble.
-    //@JsonView(Views.ExtendedI.class)
+    //@WegasJsonView(Views.ExtendedI.class)
     private String description;
     /**
      * Set this to true when the choice is to be selected with an HTML
@@ -78,15 +77,14 @@ public class QuestionDescriptor extends VariableDescriptor<QuestionInstance> imp
     @OneToMany(mappedBy = "question", cascade = {CascadeType.ALL}/*, orphanRemoval = true*/)
     //@BatchFetch(BatchFetchType.IN)
     @JoinColumn(referencedColumnName = "variabledescriptor_id")
-    @JsonManagedReference
     @OrderColumn
     private List<ChoiceDescriptor> items = new ArrayList<>();
     /**
      *
      */
     @ElementCollection
-    //@JsonView(Views.ExtendedI.class)
-    //@JsonView(Views.EditorI.class)
+    //@WegasJsonView(Views.ExtendedI.class)
+    //@WegasJsonView(Views.EditorI.class)
     private List<String> pictures = new ArrayList<>();
 
     /**
@@ -279,7 +277,7 @@ public class QuestionDescriptor extends VariableDescriptor<QuestionInstance> imp
      * @return the variableDescriptors
      */
     @Override
-    @JsonView(Views.ExportI.class)
+    @WegasJsonView(Views.ExportI.class)
     public List<ChoiceDescriptor> getItems() {
         return items;
     }

@@ -7,7 +7,6 @@
  */
 package com.wegas.resourceManagement.persistence;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wegas.core.Helper;
 import com.wegas.core.ejb.VariableDescriptorFacade;
 import com.wegas.core.exception.client.WegasIncompatibleType;
@@ -20,6 +19,7 @@ import com.wegas.core.persistence.variable.VariableDescriptor;
 import com.wegas.resourceManagement.ejb.IterationFacade;
 import java.util.ArrayList;
 import java.util.List;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -49,7 +49,7 @@ public class TaskDescriptor extends VariableDescriptor<TaskInstance> implements 
      */
     @Lob
     @Basic(fetch = FetchType.EAGER) // CARE, lazy fetch on Basics has some trouble.
-    //@JsonView(Views.ExtendedI.class)
+    //@WegasJsonView(Views.ExtendedI.class)
     private String description;
     /**
      *
@@ -60,7 +60,7 @@ public class TaskDescriptor extends VariableDescriptor<TaskInstance> implements 
      *
      */
     @ElementCollection
-    @JsonIgnore
+    @JsonbTransient
     private List<VariableProperty> properties = new ArrayList<>();
     /**
      *
@@ -71,13 +71,13 @@ public class TaskDescriptor extends VariableDescriptor<TaskInstance> implements 
                 @JoinColumn(name = "taskdescriptor_variabledescriptor_id")},
             inverseJoinColumns = {
                 @JoinColumn(name = "predecessors_variabledescriptor_id")})      // prevent change in the db
-    @JsonIgnore
+    @JsonbTransient
     private List<TaskDescriptor> predecessors = new ArrayList<>();
     /*
      *
      */
     @ManyToMany(mappedBy = "predecessors")
-    @JsonIgnore
+    @JsonbTransient
     private List<TaskDescriptor> dependencies = new ArrayList<>();
     /**
      *
@@ -87,7 +87,7 @@ public class TaskDescriptor extends VariableDescriptor<TaskInstance> implements 
              * = new ArrayList<>()
              */;
 
-    @JsonIgnore
+    @JsonbTransient
     @Override
     public List<VariableProperty> getInternalProperties() {
         return this.properties;
@@ -386,7 +386,7 @@ public class TaskDescriptor extends VariableDescriptor<TaskInstance> implements 
      *
      * @return names of predecessors, as imported from such a JSON
      */
-    @JsonIgnore
+    @JsonbTransient
     public List<String> getImportedPredecessorNames() {
         return this.predecessorNames;
     }

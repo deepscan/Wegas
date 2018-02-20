@@ -7,12 +7,12 @@
  */
 package com.wegas.core.persistence.variable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.persistence.game.GameModel;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import java.util.LinkedList;
 import java.util.List;
+import javax.json.bind.annotation.JsonbTransient;
 
 /**
  *
@@ -39,7 +39,7 @@ public interface DescriptorListI<T extends VariableDescriptor> {
      *
      * @return the gameModel owning this descriptor list
      */
-    @JsonIgnore
+    @JsonbTransient
     public GameModel getGameModel();
     
     /**
@@ -48,7 +48,7 @@ public interface DescriptorListI<T extends VariableDescriptor> {
      *
      * @return list of children's id
      */
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     default List<Long> getItemsIds() {
         List<Long> ids = new LinkedList<>();
         for (T t : this.getItems()) {

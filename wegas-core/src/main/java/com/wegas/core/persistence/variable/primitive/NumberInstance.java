@@ -7,7 +7,6 @@
  */
 package com.wegas.core.persistence.variable.primitive;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.Helper;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.exception.client.WegasOutOfBoundException;
@@ -16,7 +15,8 @@ import com.wegas.core.persistence.EntityComparators;
 import com.wegas.core.persistence.NumberListener;
 import com.wegas.core.persistence.variable.VariableDescriptor;
 import com.wegas.core.persistence.variable.VariableInstance;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.ElementCollection;
@@ -48,7 +48,7 @@ public class NumberInstance extends VariableInstance {
      *
      */
     @ElementCollection
-    @JsonView(Views.ExtendedI.class)
+    @WegasJsonView(Views.ExtendedI.class)
     //@OrderColumn
     private List<NumberHistoryEntry> history = new ArrayList<>();
 

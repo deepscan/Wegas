@@ -15,10 +15,11 @@ import com.wegas.core.persistence.game.Player;
 import com.wegas.core.persistence.game.Script;
 import com.wegas.core.persistence.variable.primitive.NumberDescriptor;
 import com.wegas.core.rest.ScriptController;
-import com.wegas.core.rest.util.JacksonMapperProvider;
+import com.wegas.core.rest.util.JsonbProvider;
 import com.wegas.test.arquillian.AbstractArquillianTestMinimal;
 import java.io.IOException;
 import javax.ejb.EJB;
+import javax.json.bind.JsonbException;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,9 +98,9 @@ public abstract class AbstractTest extends AbstractArquillianTestMinimal {
     protected final void createGameModelFromFileWithScript(String path, String... injectScriptsPath) throws IOException {
         try {
             String pmg = TestHelper.readFile(path);
-            GameModel gameModel = JacksonMapperProvider.getMapper().readValue(pmg, GameModel.class);
-            this.createGameModelWithScript(gameModel, injectScriptsPath);
-        } catch (Exception e) {
+            GameModel gm = JsonbProvider.getMapper(null).fromJson(pmg, GameModel.class);
+            this.createGameModelWithScript(gm, injectScriptsPath);
+        } catch (IOException | JsonbException e) {
             e.printStackTrace();
             throw e;
         }
@@ -118,8 +119,8 @@ public abstract class AbstractTest extends AbstractArquillianTestMinimal {
      */
     protected final void createGameModelFromFileWithConcatenatedScript(String path, String... injectScriptsPath) throws IOException {
         String pmg = TestHelper.readFile(path);
-        GameModel gameModel = JacksonMapperProvider.getMapper().readValue(pmg, GameModel.class);
-        this.createGameModelWithConcatenatedScript(gameModel, injectScriptsPath);
+        GameModel gm = JsonbProvider.getMapper(null).fromJson(pmg, GameModel.class);
+        this.createGameModelWithConcatenatedScript(gm, injectScriptsPath);
     }
 
     protected void cleanData() {

@@ -7,16 +7,15 @@
  */
 package com.wegas.core.rest.util;
 
+import com.wegas.core.persistence.views.Views;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.jaxrs.cfg.EndpointConfigBase;
-import com.fasterxml.jackson.jaxrs.cfg.ObjectWriterInjector;
-import com.fasterxml.jackson.jaxrs.cfg.ObjectWriterModifier;
 import com.wegas.core.ejb.RequestFacade;
 import com.wegas.core.ejb.RequestManager;
-import com.wegas.core.exception.client.WegasNotFoundException;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.rest.util.RequestIdentifierGenerator;
+import com.wegas.core.persistence.views.Views.WegasView;
 import com.wegas.core.security.ejb.UserFacade;
-import com.wegas.core.security.persistence.User;
 import io.prometheus.client.Counter;
 import java.io.IOException;
 import java.net.URI;
@@ -28,6 +27,8 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.Provider;
+import org.glassfish.jersey.jackson.internal.jackson.jaxrs.cfg.EndpointConfigBase;
+import org.glassfish.jersey.jackson.internal.jackson.jaxrs.cfg.ObjectWriterModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +77,7 @@ public class ViewRequestFilter implements ContainerRequestFilter {
         requestManager.setPath(cr.getUriInfo().getPath());
 
         //String userAgent = cr.getHeaderString("user-agent");
-        Class<?> view;
+        Class<? extends WegasView> view;
 
         // Handle language parameter
         if (cr.getHeaderString("lang") != null
@@ -123,8 +124,9 @@ public class ViewRequestFilter implements ContainerRequestFilter {
             view = this.stringToView(cr.getUriInfo().getQueryParameters().get("view").get(0));
         }
 
-        // Propadate new view to ObjectWriter
-        ObjectWriterInjector.set(new JsonViewModifier(view));
+        // Register thw view within the request context
+        //ObjectWriterInjector.set(new JsonViewModifier(view));
+        requestFacade.getRequestManager().setView(view);
     }
 
     /**
@@ -133,7 +135,7 @@ public class ViewRequestFilter implements ContainerRequestFilter {
      *
      * @return Views.Class matching str or public
      */
-    public Class stringToView(String str) {
+    public Class<? extends WegasView> stringToView(String str) {
         switch (str) {
             case "Extended":
                 return Views.Extended.class;

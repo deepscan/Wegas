@@ -7,13 +7,12 @@
  */
 package com.wegas.core.security.util;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.wegas.core.persistence.JsonSerializable;
 
 /**
  * @author Maxence Laurent (maxence.laurent at gmail.com)
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public class AuthenticationInformation {
+public class AuthenticationInformation implements JsonSerializable {
 
     private String login;
     private String password;

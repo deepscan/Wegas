@@ -7,8 +7,6 @@
  */
 package com.wegas.mcq.persistence;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wegas.core.Helper;
 import com.wegas.core.exception.client.WegasErrorMessage;
@@ -20,6 +18,7 @@ import com.wegas.core.persistence.variable.Beanjection;
 import com.wegas.core.persistence.variable.VariableInstance;
 import java.util.ArrayList;
 import java.util.List;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 import org.eclipse.persistence.annotations.BatchFetch;
 import org.eclipse.persistence.annotations.BatchFetchType;
@@ -56,7 +55,7 @@ public class ChoiceInstance extends VariableInstance {
     /**
      *
      * @ManyToOne(fetch = FetchType.LAZY)
-     * @JsonIgnore
+     * @JsonbTransient
      * private CurrentResult currentResult;
      */
 
@@ -64,7 +63,7 @@ public class ChoiceInstance extends VariableInstance {
      *
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
+    @JsonbTransient
     private Result currentResult;
 
     /**
@@ -72,7 +71,6 @@ public class ChoiceInstance extends VariableInstance {
      */
     @OneToMany(mappedBy = "choiceInstance", cascade = {CascadeType.ALL}, orphanRemoval = true)
     @BatchFetch(BatchFetchType.JOIN)
-    @JsonManagedReference
     //@JoinFetch
     private List<Reply> replies = new ArrayList<>();
 
@@ -99,7 +97,7 @@ public class ChoiceInstance extends VariableInstance {
      *
      * @throws WegasErrorMessage if not result are defined
      */
-    @JsonIgnore
+    @JsonbTransient
     public Result getResult() {
         if (this.getCurrentResult() != null) {
             return this.getCurrentResult();
@@ -137,7 +135,7 @@ public class ChoiceInstance extends VariableInstance {
      * @deprecated
      * @return the currentResult index
      */
-    @JsonIgnore
+    @JsonbTransient
     public Integer getCurrentResultIndex() {
         return currentResultIndex;
     }
@@ -231,7 +229,6 @@ public class ChoiceInstance extends VariableInstance {
     /**
      * @return the replies
      */
-    @JsonManagedReference
     public List<Reply> getReplies() {
         return replies;
     }
@@ -239,7 +236,6 @@ public class ChoiceInstance extends VariableInstance {
     /**
      * @param replies the replies to set
      */
-    @JsonManagedReference
     public void setReplies(List<Reply> replies) {
         this.replies = replies;
         for (Reply r : this.replies) {
@@ -286,7 +282,7 @@ public class ChoiceInstance extends VariableInstance {
     /**
      * @return the currentResult
      */
-    @JsonIgnore
+    @JsonbTransient
     public Result getCurrentResult() {
         return this.currentResult;
     }

@@ -7,12 +7,11 @@
  */
 package com.wegas.resourceManagement.persistence;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.persistence.variable.Beanjection;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
+import javax.json.bind.annotation.JsonbProperty;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 
 /**
@@ -39,11 +38,12 @@ public class Assignment extends AbstractAssignement {
      */
     @Id
     @GeneratedValue
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     private Long id;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "taskinstance_id")
+    @JsonbTransient
     private TaskInstance taskInstance;
 
     /**
@@ -51,8 +51,7 @@ public class Assignment extends AbstractAssignement {
      */
     @ManyToOne(optional = false)
     @JoinColumn(name = "variableinstance_id", nullable = false)
-    @JsonBackReference
-    @JsonIgnore
+    @JsonbTransient
     private ResourceInstance resourceInstance;
 
     /**
@@ -70,8 +69,6 @@ public class Assignment extends AbstractAssignement {
     /**
      * @return the ResourceInstance
      */
-    @JsonIgnore
-    @JsonBackReference
     @Override
     public ResourceInstance getResourceInstance() {
         return resourceInstance;
@@ -80,7 +77,6 @@ public class Assignment extends AbstractAssignement {
     /**
      * @param resourceInstance
      */
-    @JsonBackReference
     public void setResourceInstance(ResourceInstance resourceInstance) {
         this.resourceInstance = resourceInstance;
     }
@@ -88,7 +84,6 @@ public class Assignment extends AbstractAssignement {
     /**
      * @return the taskInstance
      */
-    @JsonIgnore
     @Override
     public TaskInstance getTaskInstance() {
         return taskInstance;
@@ -97,7 +92,7 @@ public class Assignment extends AbstractAssignement {
     /**
      * @param taskInstance
      */
-    @JsonProperty
+    @JsonbProperty
     public void setTaskInstance(TaskInstance taskInstance) {
         this.taskInstance = taskInstance;
     }

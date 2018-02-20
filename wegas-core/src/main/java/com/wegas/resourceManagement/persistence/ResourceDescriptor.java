@@ -7,23 +7,23 @@
  */
 package com.wegas.resourceManagement.persistence;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
+import com.wegas.core.persistence.VariableProperty;
 import com.wegas.core.persistence.game.Player;
+import com.wegas.core.persistence.variable.Propertable;
 import com.wegas.core.persistence.variable.VariableDescriptor;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.Basic;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Lob;
-import com.fasterxml.jackson.annotation.JsonView;
-import com.wegas.core.exception.client.WegasIncompatibleType;
-import com.wegas.core.persistence.variable.Propertable;
-import com.wegas.core.persistence.VariableProperty;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -38,16 +38,16 @@ public class ResourceDescriptor extends VariableDescriptor<ResourceInstance> imp
      */
     @Lob
     @Basic(fetch = FetchType.EAGER) // CARE, lazy fetch on Basics has some trouble.
-    @JsonView(Views.ExtendedI.class)
+    @WegasJsonView(Views.ExtendedI.class)
     private String description;
     /**
      *
      */
     @ElementCollection
-    @JsonIgnore
+    @JsonbTransient
     private List<VariableProperty> properties = new ArrayList<>();
 
-    @JsonIgnore
+    @JsonbTransient
     @Override
     public List<VariableProperty> getInternalProperties() {
         return properties;

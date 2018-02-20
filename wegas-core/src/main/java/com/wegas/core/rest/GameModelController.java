@@ -7,11 +7,10 @@
  */
 package com.wegas.core.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wegas.core.ejb.GameModelFacade;
 import com.wegas.core.ejb.RequestManager;
 import com.wegas.core.persistence.game.GameModel;
-import com.wegas.core.rest.util.JacksonMapperProvider;
+import com.wegas.core.rest.util.JsonbProvider;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -150,10 +149,10 @@ public class GameModelController {
     public GameModel upload(@FormDataParam("file") InputStream file,
             @FormDataParam("file") FormDataBodyPart details) throws IOException {
 
-        ObjectMapper mapper = JacksonMapperProvider.getMapper();                // Retrieve a jackson mapper instance
-        GameModel gm = mapper.readValue(file, GameModel.class);                 // and deserialize file
+        GameModel gm = JsonbProvider.getMapper(null).fromJson(file, GameModel.class);
 
-        gm.setName(gameModelFacade.findUniqueName(gm.getName()));               // Find a unique name for this new game
+        // Find a unique name for this new game
+        gm.setName(gameModelFacade.findUniqueName(gm.getName()));
 
         gameModelFacade.createWithDebugGame(gm);
         return gm;

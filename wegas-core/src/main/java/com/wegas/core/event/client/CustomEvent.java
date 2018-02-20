@@ -11,7 +11,6 @@ package com.wegas.core.event.client;
  *
  * @author Francois-Xavier Aeberhard (fx at red-agent.com)
  */
-//@JsonTypeName(value = "CustomEvent")
 public class CustomEvent extends ClientEvent {
 
     private static final long serialVersionUID = 1L;

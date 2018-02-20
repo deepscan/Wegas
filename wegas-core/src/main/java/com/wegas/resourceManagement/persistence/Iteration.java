@@ -7,16 +7,14 @@
  */
 package com.wegas.resourceManagement.persistence;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.DatedEntity;
 import com.wegas.core.persistence.ListUtils;
 import com.wegas.core.persistence.variable.Beanjection;
-import com.wegas.core.rest.util.Views;
+import com.wegas.core.persistence.views.Views;
+import com.wegas.core.persistence.views.WegasJsonView;
 import com.wegas.core.security.util.WegasPermission;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 
 /**
@@ -49,7 +48,7 @@ public class Iteration extends AbstractEntity implements DatedEntity {
         COMPLETED
     };
 
-    @JsonIgnore
+    @JsonbTransient
     @Transient
     private List<String> deserialisedNames;
 
@@ -58,7 +57,7 @@ public class Iteration extends AbstractEntity implements DatedEntity {
      */
     @Id
     @GeneratedValue
-    @JsonView(Views.IndexI.class)
+    @WegasJsonView(Views.IndexI.class)
     private Long id;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -95,7 +94,7 @@ public class Iteration extends AbstractEntity implements DatedEntity {
      * planned workload from beginAt period
      */
     @ElementCollection
-    @JsonIgnore
+    @JsonbTransient
     private List<IterationPlanning> plannedWorkloads = new ArrayList<>();
 
     /**
@@ -103,7 +102,7 @@ public class Iteration extends AbstractEntity implements DatedEntity {
      * Indicate the planned workload consumption
      */
     @ElementCollection
-    @JsonIgnore
+    @JsonbTransient
     private List<IterationPlanning> replannedWorkloads = new ArrayList<>();
 
     /**
@@ -116,7 +115,7 @@ public class Iteration extends AbstractEntity implements DatedEntity {
     /**
      * Tasks composing the iteration
      */
-    @JsonIgnore
+    @JsonbTransient
     @ManyToMany
     @JoinTable(name = "iteration_taskinstance",
             joinColumns = {
@@ -132,7 +131,7 @@ public class Iteration extends AbstractEntity implements DatedEntity {
      * parent BurndownInstance
      */
     @ManyToOne(optional = false)
-    @JsonBackReference
+    @JsonbTransient
     private BurndownInstance burndownInstance;
 
     /**
@@ -289,7 +288,7 @@ public class Iteration extends AbstractEntity implements DatedEntity {
         this.totalWorkload = totalWorkload;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     private Long getLastPlannedPeriod() {
         Long max = 0l;
         Set<Long> periods = getPlannedWorkloads().keySet();
@@ -301,7 +300,7 @@ public class Iteration extends AbstractEntity implements DatedEntity {
         return max + beginAt;
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public Double getPlannedValue(Double upTo) {
         double upToPeriod = Math.floor(upTo);
 
@@ -331,7 +330,7 @@ public class Iteration extends AbstractEntity implements DatedEntity {
         }
     }
 
-    @JsonIgnore
+    @JsonbTransient
     public Double getActualWorkload(int upToPeriod) {
         Double aw = 0.0;
 
@@ -349,7 +348,7 @@ public class Iteration extends AbstractEntity implements DatedEntity {
      *
      * @return planned workload, mapped by relative period number
      */
-    @JsonIgnore
+    @JsonbTransient
     private Map<Long, Double> getModifiablePlannedWorkloads() {
         return ListUtils.mapEntries(this.plannedWorkloads, new IterationPlanning.Extractor());
     }
@@ -429,7 +428,7 @@ public class Iteration extends AbstractEntity implements DatedEntity {
      *
      * @return the planned workloads consumption
      */
-    @JsonIgnore
+    @JsonbTransient
     private Map<Long, Double> getModifiableReplannedWorkloads() {
         return ListUtils.mapEntries(this.replannedWorkloads, new IterationPlanning.Extractor());
     }

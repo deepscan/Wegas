@@ -16,6 +16,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -62,7 +64,33 @@ public class FacebookRealm extends AuthorizingRealm {
                 String accessToken = getPropsMap(authResponse).get("access_token");
                 URL url = new URL("https://graph.facebook.com/me?access_token=" + accessToken);
                 String fbResponse = readURL(url);
-                FacebookUserDetails fud = new FacebookUserDetails(fbResponse);
+
+// jsonString Expected to be something like this
+// {
+// "education": [{
+// "school": {
+// "id": "123456789012345",
+// "name": "University of Sheffield"
+// },
+// "type": "Graduate School",
+// "with": [{
+// "id": "123456789",
+// "name": "Daffy Duck"
+// }]
+// }],
+// "first_name": "Mike",
+// "id": "121212121",
+// "last_name": "Warren",
+// "link":
+// "http://www.facebook.com/profile.php?id=121212121",
+// "locale": "en_US",
+// "name": "Mike Warren",
+// "updated_time": "2011-08-15T14:51:05+0000",
+// "verified": true
+// }
+                Jsonb jsonb = JsonbBuilder.create();
+                FacebookUserDetails fud = jsonb.fromJson(fbResponse, FacebookUserDetails.class);
+
                 return new FacebookAuthenticationInfo(fud, this.getName());
             } catch (MalformedURLException e1) {
                 e1.printStackTrace();

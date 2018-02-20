@@ -7,9 +7,6 @@
  */
 package com.wegas.core.ejb;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IAtomicLong;
 import com.hazelcast.core.ILock;
@@ -24,7 +21,7 @@ import com.wegas.core.persistence.game.Game;
 import com.wegas.core.persistence.game.GameModel;
 import com.wegas.core.persistence.game.Player;
 import com.wegas.core.persistence.game.Team;
-import com.wegas.core.rest.util.JacksonMapperProvider;
+import com.wegas.core.rest.util.JsonbProvider;
 import com.wegas.core.rest.util.PusherChannelExistenceWebhook;
 import com.wegas.core.security.ejb.UserFacade;
 import com.wegas.core.security.guest.GuestJpaAccount;
@@ -54,6 +51,7 @@ import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.json.bind.JsonbException;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -386,16 +384,13 @@ public class WebsocketFacade {
     }
 
     private int computeLength(GzContent gzip) {
-
         try {
-            ObjectMapper mapper = JacksonMapperProvider.getMapper();
-            String writeValueAsString = mapper.writeValueAsString(gzip);
-            logger.error(writeValueAsString);
-            logger.error("LENGTH SHOULD BE: {}", writeValueAsString.length());
+            String json = JsonbProvider.getMapper(null).toJson(gzip);
+            logger.error(json);
+            logger.error("LENGTH SHOULD BE: {}", json.length());
 
-            return writeValueAsString.length();
-        } catch (JsonProcessingException ex) {
-            logger.error("FAILS TO COMPUTE LENGTH");
+            return json.length();
+        } catch (JsonbException ex) {
             return 0;
         }
     }
@@ -448,13 +443,6 @@ public class WebsocketFacade {
         }
     }
 
-    public final String toJson(Object o) throws IOException {
-        ObjectMapper mapper = JacksonMapperProvider.getMapper();
-        //ObjectWriter writerWithView = mapper.writerWithView(Views.class);
-        ObjectWriter writer = mapper.writer();
-        return writer.writeValueAsString(o);
-    }
-
     public void populateQueueDec() throws IOException {
         if (pusher != null) {
             pusher.trigger(GLOBAL_CHANNEL, "populateQueue-dec", 1);
@@ -470,8 +458,8 @@ public class WebsocketFacade {
                         this.propagate(new EntityUpdatedEvent(entry.getValue()), entry.getKey(), null);
                     }
 
-                    pusher.trigger(this.getChannelFromUserId(user.getId()), "team-update", toJson(newPlayer.getTeam()));
-                } catch (IOException ex) {
+                    pusher.trigger(this.getChannelFromUserId(user.getId()), "team-update", newPlayer.getTeam().toJson());
+                } catch (JsonbException ex) {
                     logger.error("Error while propagating player");
                 }
             }
@@ -505,7 +493,7 @@ public class WebsocketFacade {
             return pusher.authenticate(socketId, channel, new PresenceUser(user.getId(), userInfo));
         }
         if (channel.startsWith("private")) {
-            if (requestManager.hasChannelPermission(channel)){
+            if (requestManager.hasChannelPermission(channel)) {
                 return pusher.authenticate(socketId, channel);
             }
         }
@@ -667,8 +655,7 @@ public class WebsocketFacade {
                 Result get = pusher.get("/channels");
                 String message = get.getMessage();
 
-                ObjectMapper mapper = JacksonMapperProvider.getMapper();
-                HashMap<String, HashMap<String, Object>> readValue = mapper.readValue(message, HashMap.class);
+                HashMap<String, HashMap<String, Object>> readValue = JsonbProvider.getMapper(null).fromJson(message, HashMap.class);
                 HashMap<String, Object> channels = readValue.get("channels");
 
                 for (String channel : channels.keySet()) {
@@ -682,8 +669,8 @@ public class WebsocketFacade {
 
                 updateOnlineUserMetric();
 
-            } catch (IOException ex) {
-                java.util.logging.Logger.getLogger(WebsocketFacade.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (JsonbException ex) {
+                logger.error("Init online users fails: " + ex);
             }
         }
     }
@@ -697,20 +684,19 @@ public class WebsocketFacade {
                 Result get = pusher.get("/channels");
                 String message = get.getMessage();
 
-                ObjectMapper mapper = JacksonMapperProvider.getMapper();
-                HashMap<String, HashMap<String, Object>> readValue = mapper.readValue(message, HashMap.class);
+                HashMap<String, HashMap<String, Object>> readValue = JsonbProvider.getMapper(null).fromJson(message, HashMap.class);
                 HashMap<String, Object> channels = readValue.get("channels");
 
                 /*
-             * Assert all online users are in the local list
+                 * Assert all online users are in the local list
                  */
                 for (String channel : channels.keySet()) {
                     this.registerUser(this.getUserFromChannel(channel));
                 }
 
                 /*
-             * Detect no longer online user still in the local list
-             * and remove them
+                 * Detect no longer online user still in the local list
+                 * and remove them
                  */
                 Iterator<Cache.Entry<Long, OnlineUser>> it = onlineUsers.iterator();
                 while (it.hasNext()) {
@@ -729,8 +715,8 @@ public class WebsocketFacade {
                     onlineUsersUpToDate.set(1);
                 }
 
-            } catch (IOException ex) {
-                java.util.logging.Logger.getLogger(WebsocketFacade.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (JsonbException ex) {
+                logger.error("Sync online users fails: " + ex);
             }
         }
     }
@@ -741,10 +727,9 @@ public class WebsocketFacade {
      */
     private void propagateOnlineUsers() {
         try {
-            ObjectMapper mapper = JacksonMapperProvider.getMapper();
-            String users = mapper.writeValueAsString(getLocalOnlineUsers());
+            String users = JsonbProvider.getMapper(null).toJson(getLocalOnlineUsers());
             pusher.trigger(WebsocketFacade.ADMIN_CHANNEL, "online-users", users);
-        } catch (JsonProcessingException ex) {
+        } catch (JsonbException ex) {
             java.util.logging.Logger.getLogger(WebsocketFacade.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

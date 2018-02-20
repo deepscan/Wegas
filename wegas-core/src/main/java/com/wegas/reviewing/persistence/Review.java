@@ -7,7 +7,7 @@
  */
 package com.wegas.reviewing.persistence;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.json.bind.annotation.JsonbTransient;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.DatedEntity;
@@ -91,7 +91,7 @@ public class Review extends AbstractEntity implements DatedEntity {
     @Enumerated(value = EnumType.STRING)
     private ReviewState reviewState;
 
-    @JsonIgnore
+    @JsonbTransient
     @Transient
     private ReviewState initialState;
 
@@ -99,14 +99,14 @@ public class Review extends AbstractEntity implements DatedEntity {
      * the PeerReviewInstance that belongs to the reviewer
      */
     @ManyToOne
-    @JsonIgnore
+    @JsonbTransient
     private PeerReviewInstance reviewer;
 
     /**
      * the PeerReviewInstance that belongs to the reviewed author
      */
     @ManyToOne
-    @JsonIgnore
+    @JsonbTransient
     private PeerReviewInstance author;
 
     /**

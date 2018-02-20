@@ -7,9 +7,9 @@
  */
 package com.wegas.core.rest.util;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.wegas.core.event.client.ClientEvent;
 import com.wegas.core.persistence.AbstractEntity;
+import com.wegas.core.persistence.JsonSerializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,8 +17,7 @@ import java.util.List;
  *
  * @author Maxence Laurent (maxence.laurent at gmail.com)
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public class ManagedResponse {
+public class ManagedResponse implements JsonSerializable {
 
     private List<AbstractEntity> deletedEntities;
     private List<AbstractEntity> updatedEntities;
