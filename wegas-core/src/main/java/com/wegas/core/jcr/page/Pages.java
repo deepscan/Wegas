@@ -7,13 +7,13 @@
  */
 package com.wegas.core.jcr.page;
 
-import javax.json.bind.annotation.JsonbTransient;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.wegas.core.AlphanumericComparator;
 import java.util.*;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
+import javax.json.JsonObject;
+import javax.json.bind.annotation.JsonbTransient;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -67,9 +67,9 @@ public class Pages implements AutoCloseable {
      * @return Map complete pages.
      * @throws RepositoryException
      */
-    public Map<String, JsonNode> getPagesContent() throws RepositoryException {
+    public Map<String, JsonObject> getPagesContent() throws RepositoryException {
         NodeIterator it = this.connector.listChildren();
-        Map<String, JsonNode> ret = new TreeMap<>(new AlphanumericComparator<String>());
+        Map<String, JsonObject> ret = new TreeMap<>(new AlphanumericComparator<>());
         while (it.hasNext()) {
             Node n = (Node) it.next();
             Page p = new Page(n);

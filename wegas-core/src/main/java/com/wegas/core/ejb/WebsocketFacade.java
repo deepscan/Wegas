@@ -305,7 +305,7 @@ public class WebsocketFacade {
                      * only id and class name are propagated
                      */
                     for (AbstractEntity ae : toPropagate) {
-                        refreshed.add(new DestroyedEntity(ae.getId(), ae.getJSONClassName()));
+                        refreshed.add(new DestroyedEntity(ae.getId(), ae.getWegasJsonTypeName()));
                     }
                     event = eventClass.getDeclaredConstructor(List.class).newInstance(refreshed);
                 } else {

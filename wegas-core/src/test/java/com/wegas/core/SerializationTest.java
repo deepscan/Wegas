@@ -7,7 +7,6 @@
  */
 package com.wegas.core;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wegas.core.event.client.CustomEvent;
 import com.wegas.core.event.client.EntityUpdatedEvent;
 import com.wegas.core.event.client.ExceptionEvent;
@@ -63,7 +62,6 @@ import com.wegas.resourceManagement.persistence.ResourceInstance;
 import com.wegas.resourceManagement.persistence.TaskDescriptor;
 import com.wegas.resourceManagement.persistence.TaskInstance;
 import com.wegas.resourceManagement.persistence.WRequirement;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.json.bind.Jsonb;
@@ -142,7 +140,7 @@ public class SerializationTest {
     }
 
     @Test
-    public void testVariableSerialization() throws JsonProcessingException {
+    public void testVariableSerialization() {
         ListDescriptor listD = new ListDescriptor("LIST");
         ListInstance listI = new ListInstance();
         listD.setDefaultInstance(listI);
@@ -197,7 +195,7 @@ public class SerializationTest {
     }
 
     @Test
-    public void testGameSerialization() throws JsonProcessingException {
+    public void testGameSerialization() {
         GameModel gameModel = new GameModel("DasGameModel");
         gameModel.setId(999L);
         Game game = new Game("GameName", "Das-Token");
@@ -243,7 +241,7 @@ public class SerializationTest {
     }
 
     @Test
-    public void testMCQSerialization() throws JsonProcessingException {
+    public void testMCQSerialization() {
         QuestionDescriptor questionD = new QuestionDescriptor();
         QuestionInstance questionI = new QuestionInstance();
         questionD.setDefaultInstance(questionI);
@@ -436,7 +434,7 @@ public class SerializationTest {
     }
 
     @Test
-    public void testJpaAccount() throws JsonProcessingException, IOException {
+    public void testJpaAccount() {
         JpaAccount ja = new JpaAccount();
         ja.setFirstname("Alan");
         ja.setLastname("Smithee");

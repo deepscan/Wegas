@@ -7,12 +7,12 @@
  */
 package com.wegas.resourceManagement.persistence;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.variable.Beanjection;
 import com.wegas.core.persistence.views.Views;
 import com.wegas.core.persistence.views.WegasJsonView;
+import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 
@@ -177,7 +177,7 @@ public class Activity extends AbstractAssignement {
     /**
      * @param taskInstance
      */
-    @JsonProperty
+    @JsonbProperty
     public void setTaskInstance(TaskInstance taskInstance) {
         this.taskInstance = taskInstance;
     }

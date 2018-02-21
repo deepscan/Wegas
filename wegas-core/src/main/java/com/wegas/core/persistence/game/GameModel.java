@@ -7,8 +7,7 @@
  */
 package com.wegas.core.persistence.game;
 
-import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wegas.core.Helper;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.jcr.page.Page;
@@ -29,6 +28,9 @@ import com.wegas.core.security.util.WegasPermission;
 import java.util.*;
 import java.util.Map.Entry;
 import javax.jcr.RepositoryException;
+import javax.json.JsonObject;
+import javax.json.bind.annotation.JsonbCreator;
+import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
@@ -203,7 +205,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
      */
     @Transient
     @WegasJsonView(Views.ExportI.class)
-    private Map<String, JsonNode> pages;
+    private Map<String, JsonObject> pages;
 
     /**
      *
@@ -223,17 +225,15 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
      *
      * @throws RepositoryException
      */
-    @JsonCreator
-    public GameModel(@JsonProperty("pages") JsonNode pageMap) throws RepositoryException {
-        Map<String, JsonNode> map = new HashMap<>();
+    @JsonbCreator
+    public GameModel(@JsonbProperty("pages") JsonObject pageMap) throws RepositoryException {
+        Map<String, JsonObject> map = new HashMap<>();
         if (pageMap == null) {
             return;
         }
-        String curKey;
-        Iterator<String> iterator = pageMap.fieldNames();
-        while (iterator.hasNext()) {
-            curKey = iterator.next();
-            map.put(curKey, pageMap.get(curKey));
+        for (String key : pageMap.keySet()) {
+            pageMap.getJsonObject(key);
+            map.put(key, pageMap.getJsonObject(key));
         }
         this.setPages(map);
     }
@@ -486,7 +486,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     /**
      * @param variableDescriptors
      */
-    @JsonProperty
+    @JsonbProperty
     public void setChildVariableDescriptors(List<VariableDescriptor> variableDescriptors) {
         this.childVariableDescriptors = new ArrayList<>();
         for (VariableDescriptor vd : variableDescriptors) {
@@ -719,7 +719,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     /**
      * @return the pages
      */
-    public Map<String, JsonNode> getPages() {
+    public Map<String, JsonObject> getPages() {
         // do not even try to fetch pages from repository if the gamemodel define a pagesURI
         if (Helper.isNullOrEmpty(getProperties().getPagesUri())) {
             try (final Pages pagesDAO = new Pages(this.id)) {
@@ -735,7 +735,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
     /**
      * @param pageMap
      */
-    public final void setPages(Map<String, JsonNode> pageMap) {
+    public final void setPages(Map<String, JsonObject> pageMap) {
         this.pages = pageMap;
         if (this.id != null) {
             this.storePages();
@@ -766,7 +766,7 @@ public class GameModel extends NamedEntity implements DescriptorListI<VariableDe
                 pagesDAO.delete();                                              // Remove existing pages
                 // Pay Attention: this.pages != this.getPages() ! 
                 // this.pages contains deserialized pages, getPages() fetchs them from the jackrabbit repository
-                for (Entry<String, JsonNode> p : this.pages.entrySet()) {       // Add all pages
+                for (Entry<String, JsonObject> p : this.pages.entrySet()) {       // Add all pages
                     pagesDAO.store(new Page(p.getKey(), p.getValue()));
                 }
 

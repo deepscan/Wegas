@@ -7,15 +7,14 @@
  */
 package com.wegas.core.jcr.content;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import javax.json.bind.annotation.JsonbTransient;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.slf4j.LoggerFactory;
-
+import java.util.zip.ZipEntry;
 import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
-import java.util.zip.ZipEntry;
+import javax.json.bind.annotation.JsonbCreator;
+import javax.json.bind.annotation.JsonbProperty;
+import javax.json.bind.annotation.JsonbTransient;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Cyril Junod (cyril.junod at gmail.com)
@@ -32,8 +31,8 @@ abstract public class AbstractContentDescriptor {
      * @return 
      * @throws RepositoryException
      */
-    @JsonCreator
-    public static AbstractContentDescriptor getDescriptor(@JsonProperty("name") String name, @JsonProperty("path") String path, @JsonProperty("mimeType") String mimeType) throws RepositoryException {
+    @JsonbCreator
+    public static AbstractContentDescriptor getDescriptor(@JsonbProperty("name") String name, @JsonbProperty("path") String path, @JsonbProperty("mimeType") String mimeType) throws RepositoryException {
         if (mimeType.equals(DirectoryDescriptor.MIME_TYPE)) {
             return new DirectoryDescriptor(name, path, null);
         } else {

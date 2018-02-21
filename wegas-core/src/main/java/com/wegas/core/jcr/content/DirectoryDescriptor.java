@@ -7,12 +7,12 @@
  */
 package com.wegas.core.jcr.content;
 
-import javax.json.bind.annotation.JsonbTransient;
 import java.util.ArrayList;
 import java.util.List;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import javax.json.bind.annotation.JsonbProperty;
+import javax.json.bind.annotation.JsonbTransient;
 
 /**
  *
@@ -59,7 +59,7 @@ public class DirectoryDescriptor extends AbstractContentDescriptor {
      *
      * @return ?????  sum of bytes of children ???
      */
-    @JsonProperty("bytes")
+    @JsonbProperty("bytes")
     @Override
     public Long getBytes() {
         List<AbstractContentDescriptor> nodes = new ArrayList<>();

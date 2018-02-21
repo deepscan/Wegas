@@ -94,14 +94,12 @@
         <wegas.clientErrorLogging>false</wegas.clientErrorLogging>
         <wegas.useYUICDN>false</wegas.useYUICDN>
 
-        <shiro.version>1.3.2</shiro.version>
-        <atmosphere.version>0.9-SNAPSHOT</atmosphere.version>
-        <!--<jersey.version>2.25.1</jersey.version>-->
+        <shiro.version>1.4.0</shiro.version>
         <jdk.version>1.8</jdk.version>
         <payara.version>5.Beta2</payara.version>
         <payara-api.version>5.Beta2</payara-api.version>
         <junit.version>4.12</junit.version>
-        <arquillian.version>1.1.13.Final</arquillian.version>
+        <arquillian.version>1.3.0.Final</arquillian.version>
         <exec.plugin.version>1.2</exec.plugin.version>
         <jar.plugin.version>2.3.1</jar.plugin.version>
         <war.plugin.version>3.2.0</war.plugin.version>
@@ -117,9 +115,9 @@
         <slf4j.version>1.7.25</slf4j.version>
         <logback.version>1.2.3</logback.version>
 
-        <httpcomponents.version>4.5.3</httpcomponents.version>
         <liquibase.version>2.0.5</liquibase.version>
-        <eclipselink.version>2.6.4</eclipselink.version>
+
+        <eclipselink.version>2.7.0</eclipselink.version>
         <jcr.version>2.0</jcr.version>
         <oak.version>1.6.5</oak.version>
         <prometheus.version>0.0.23</prometheus.version>
@@ -223,13 +221,6 @@
                 <version>${shiro.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpclient</artifactId>
-                <version>${httpcomponents.version}</version>
-                <type>jar</type>
-            </dependency>
-
             <!--<dependency>
                 <groupId>javax.enterprise</groupId>
                 <artifactId>cdi-api</artifactId>
@@ -270,21 +261,16 @@
                 <scope>compile</scope>
             </dependency>
 
-            <dependency>
-                <groupId>com.github.fge</groupId>
-                <artifactId>json-patch</artifactId>
-                <version>1.9</version>
-            </dependency>
             <!-- PDF Generation -->
             <dependency>
                 <groupId>com.itextpdf</groupId>
                 <artifactId>itextpdf</artifactId>
-                <version>5.5.12</version>
+                <version>5.5.13</version>
             </dependency>
             <dependency>
                 <groupId>org.xhtmlrenderer</groupId>
                 <artifactId>flying-saucer-pdf</artifactId>
-                <version>9.1.6</version>
+                <version>9.1.11</version>
                 <type>jar</type>
             </dependency>
             <dependency>
@@ -297,14 +283,14 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>
-                <version>1.1</version>
+                <version>1.2</version>
                 <type>jar</type>
             </dependency>
 
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.5</version>
+                <version>2.6</version>
                 <type>jar</type>
             </dependency>
 
@@ -327,7 +313,7 @@
             <dependency>
                 <groupId>fish.payara.arquillian</groupId>
                 <artifactId>arquillian-payara-server-4-embedded</artifactId>
-                <version>1.0.Beta2</version>
+                <version>1.0.Beta3-m1</version>
                 <scope>test</scope>
              </dependency>
 
@@ -371,7 +357,7 @@
             <dependency>
                 <groupId>net.sourceforge.htmlunit</groupId>
                 <artifactId>htmlunit</artifactId>
-                <version>2.27</version>
+                <version>2.29</version>
                 <scope>test</scope>
                 <type>jar</type>
             </dependency>
@@ -380,17 +366,9 @@
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>42.1.4</version>
+                <version>42.2.1</version>
                 <!--<scope>test</scope>-->
             </dependency>
-            <!--ehcache
-            <dependency>
-                <groupId>net.sf.ehcache</groupId>
-                <artifactId>ehcache</artifactId>
-                <version>2.9.0</version>
-                <scope>${profile.dependent.scope}</scope>
-            </dependency>
-            -->
 
             <!-- Pusher -->
             <dependency>
@@ -398,88 +376,6 @@
                 <artifactId>pusher-http-java</artifactId>
                 <version>1.0.0</version>
             </dependency>
-
-            <!-- Jsf -->
-            <!-- For Java EE Application Server -->
-            <!--<dependency>
-                <groupId>javax.faces</groupId>
-                <artifactId>jsf-api</artifactId>
-                <version>2.0</version>
-                <scope>provided</scope>
-            </dependency>-->
-            <!-- For Servlet Container like Tomcat -->
-            <!--<dependency>
-              <groupId>com.sun.faces</groupId>
-              <artifactId>jsf-api</artifactId>
-              <version>2.1.0-b03</version>
-            </dependency>
-            <dependency>
-              <groupId>com.sun.faces</groupId>
-              <artifactId>jsf-impl</artifactId>
-              <version>2.1.0-b03</version>
-            </dependency>-->
-
-            <!-- Facebook api -->
-            <!--<dependency>
-                <groupId>com.google.code.facebookapi</groupId>
-                <artifactId>facebook-java-api</artifactId>
-                <version>2.0.5</version>
-            </dependency>-->
-
-            <!-- Atmosphere Dependencies -->
-            <!--<dependency>
-                <groupId>org.atmosphere</groupId>
-                <artifactId>atmosphere-runtime</artifactId>
-                <version>${atmosphere.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.atmosphere</groupId>
-                <artifactId>atmosphere-annotations</artifactId>
-                <version>${atmosphere.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.atmosphere</groupId>
-                <artifactId>atmosphere-jquery</artifactId>
-                <version>${atmosphere.version}</version>
-                <type>war</type>
-            </dependency>
-            <dependency>
-                <groupId>org.atmosphere</groupId>
-                <artifactId>atmosphere-jersey</artifactId>
-                <version>${atmosphere.version}</version>
-            </dependency>-->
-            <!-- Jave web container api -->
-            <!-- Alway after embeded-glassfish -->
-            <!--<dependency>
-                <groupId>javax</groupId>
-                <artifactId>javaee-api</artifactId>
-                <version>6.0</version>
-                <scope>provided</scope>
-            </dependency>-->
-
-
-            <!--<dependency>
-                <artifactId>commons-logging</artifactId>
-                <groupId>commons-logging</groupId>
-                <type>jar</type>
-                <version>1.1.1</version>
-                <scope>provided</scope>
-            </dependency>-->
-
-            <!--<dependency>
-                <artifactId>commons-lang</artifactId>
-                <groupId>commons-lang</groupId>
-                <type>jar</type>
-                <version>2.2</version>
-            </dependency>-->
-            <!--
-            <dependency>
-                <groupId>fish.payara.extras</groupId>
-                <artifactId>payara-embedded-all</artifactId>
-                <version>${payara.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            -->
 
 
             <dependency>
@@ -503,13 +399,6 @@
                 <scope>provided</scope>
             </dependency>
             
-            <!-- Embedded glassfish
-            <dependency>
-                <groupId>org.glassfish.main.extras</groupId>
-                <artifactId>glassfish-embedded-all</artifactId>
-                <version>${glassfish.version}</version>
-                <scope>provided</scope>
-            </dependency>-->
             <!-- Neo4j driver -->
             <dependency>
                 <groupId>org.neo4j.driver</groupId>

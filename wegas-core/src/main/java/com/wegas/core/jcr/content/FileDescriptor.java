@@ -7,19 +7,18 @@
  */
 package com.wegas.core.jcr.content;
 
-import javax.json.bind.annotation.JsonbTransient;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wegas.core.exception.client.WegasErrorMessage;
-import org.apache.commons.lang3.ArrayUtils;
-import org.slf4j.LoggerFactory;
-
-import javax.jcr.PathNotFoundException;
-import javax.jcr.RepositoryException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.json.bind.annotation.JsonbProperty;
+import javax.json.bind.annotation.JsonbTransient;
+import org.apache.commons.lang3.ArrayUtils;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Cyril Junod (cyril.junod at gmail.com)
@@ -157,7 +156,7 @@ public class FileDescriptor extends AbstractContentDescriptor {
     /**
      * @return last modified date
      */
-    @JsonProperty("dataLastModified")
+    @JsonbProperty("dataLastModified")
     public Calendar getDataLastModified() {
         return dataLastModified;
     }
@@ -165,7 +164,7 @@ public class FileDescriptor extends AbstractContentDescriptor {
     /**
      * @return file content as bytes
      */
-    @JsonProperty("bytes")
+    @JsonbProperty("bytes")
     @Override
     public Long getBytes() {
         return bytes;

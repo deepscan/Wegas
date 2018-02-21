@@ -7,8 +7,6 @@
  */
 package com.wegas.core.persistence.variable.scope;
 
-import javax.json.bind.annotation.JsonbTransient;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.wegas.core.persistence.InstanceOwner;
 import com.wegas.core.persistence.game.Game;
 import com.wegas.core.persistence.game.GameModel;
@@ -16,6 +14,8 @@ import com.wegas.core.persistence.game.Player;
 import com.wegas.core.persistence.game.Team;
 import com.wegas.core.persistence.variable.VariableDescriptor;
 import com.wegas.core.persistence.variable.VariableInstance;
+import javax.json.bind.annotation.JsonbPropertyOrder;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * @author Francois-Xavier Aeberhard (fx at red-agent.com)
  */
 @Entity
-@JsonPropertyOrder(value = {"@class", "id", "name"})
+@JsonbPropertyOrder(value = {"@class", "id", "name"})
 public class GameModelScope extends AbstractScope<GameModel> {
 
     private static final long serialVersionUID = 1L;

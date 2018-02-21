@@ -7,10 +7,9 @@
  */
 package com.wegas.core.persistence;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.wegas.core.persistence.variable.Beanjection;
-import com.wegas.core.rest.util.JsonbProvider;
 import com.wegas.core.persistence.views.Views;
+import com.wegas.core.rest.util.JsonbProvider;
 import com.wegas.core.security.util.WegasPermission;
 import java.io.IOException;
 import java.io.Serializable;
@@ -164,17 +163,6 @@ public abstract class AbstractEntity implements Serializable, Cloneable, WithPer
      * @param beans facade wrapper
      */
     public void updateCacheOnDelete(Beanjection beans) {
-    }
-
-    @JsonbTransient
-    public String getJSONClassName() {
-        JsonTypeName annotation = this.getClass().getAnnotation(JsonTypeName.class);
-
-        if (annotation != null) {
-            return annotation.value();
-        } else {
-            return this.getClass().getSimpleName();
-        }
     }
 
     /**

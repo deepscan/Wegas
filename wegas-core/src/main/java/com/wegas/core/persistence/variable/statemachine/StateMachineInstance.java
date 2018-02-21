@@ -7,18 +7,18 @@
  */
 package com.wegas.core.persistence.variable.statemachine;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wegas.core.Helper;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.EntityComparators;
+import com.wegas.core.persistence.WegasJsonTypeName;
 import com.wegas.core.persistence.variable.VariableInstance;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
-import com.wegas.core.persistence.WegasJsonTypeName;
 
 /**
  *
@@ -64,7 +64,7 @@ public class StateMachineInstance extends VariableInstance {
      *
      * @return the current state
      */
-    @JsonProperty("currentState")
+    @JsonbProperty("currentState")
     public State getCurrentState() {
         final Map<Long, State> states = ((StateMachineDescriptor) this.findDescriptor()).getStates();
         return states.get(this.currentStateId);
@@ -113,7 +113,7 @@ public class StateMachineInstance extends VariableInstance {
      *
      * @return list of walked transitions
      */
-    @JsonProperty
+    @JsonbProperty
     public List<Long> getTransitionHistory() {
         List<TransitionHistoryEntry> copy = Helper.copyAndSort(this.transitionHistory, new EntityComparators.OrderComparator<>());
 
@@ -124,7 +124,7 @@ public class StateMachineInstance extends VariableInstance {
         return h;
     }
 
-    @JsonProperty
+    @JsonbProperty
     public void setTransitionHistory(List<Long> transitionHistory) {
         this.transitionHistory.clear();
         if (transitionHistory != null) {

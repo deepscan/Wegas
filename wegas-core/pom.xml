@@ -33,11 +33,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
         </dependency>
@@ -47,14 +42,6 @@
             <artifactId>cdi-api</artifactId>
             <scope>provided</scope>
         </dependency>-->
-
-        <!--<dependency>
-        <groupId>org.glassfish.main.extras</groupId>
-        <artifactId>glassfish-embedded-all</artifactId>
-        <scope>provided</scope>-->
-        <!-- Compile scope is usefull to test JPQL queries-->
-        <!--            <scope>compile</scope>-->
-        <!--</dependency>-->
 
         <!-- Liquibase 
         <dependency>
@@ -93,10 +80,6 @@
             <groupId>javax.jcr</groupId>
             <artifactId>jcr</artifactId>
             <!--            <scope>compile</scope>-->
-        </dependency>
-        <dependency>
-            <groupId>com.github.fge</groupId>
-            <artifactId>json-patch</artifactId>
         </dependency>
 
         <!-- Test -->
@@ -143,11 +126,6 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <scope>test</scope>
-        </dependency>-->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>

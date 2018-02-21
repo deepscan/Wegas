@@ -7,20 +7,18 @@
  */
 package com.wegas.core.persistence.variable.primitive;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.wegas.core.Helper;
 import com.wegas.core.exception.client.WegasErrorMessage;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.variable.Searchable;
 import com.wegas.core.persistence.variable.VariableDescriptor;
 import com.wegas.core.persistence.variable.VariableInstance;
-import java.io.IOException;
+import com.wegas.core.rest.util.JsonbProvider;
+import java.util.List;
+import javax.json.bind.JsonbException;
+import javax.persistence.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.persistence.Entity;
-import java.util.List;
 
 /**
  * @author Francois-Xavier Aeberhard (fx at red-agent.com)
@@ -71,13 +69,11 @@ public class StringInstance extends VariableInstance implements Searchable {
         VariableDescriptor vd = this.findDescriptor();
         if (vd instanceof StringDescriptor && value != null) {
             StringDescriptor sd = (StringDescriptor) vd;
-            String[] values;
+            String[] values = {};
 
             try {
-                ObjectMapper mapper = new ObjectMapper();
-                values = mapper.readValue(value, TypeFactory.defaultInstance().constructArrayType(String.class));
-
-            } catch (IOException ex) {
+                values = JsonbProvider.getMapper(null).fromJson(value, values.getClass().getGenericSuperclass());
+            } catch (JsonbException ex) {
                 values = new String[1];
                 values[0] = value;
             }

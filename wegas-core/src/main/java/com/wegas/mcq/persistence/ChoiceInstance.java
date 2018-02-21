@@ -7,7 +7,6 @@
  */
 package com.wegas.mcq.persistence;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wegas.core.Helper;
 import com.wegas.core.exception.client.WegasErrorMessage;
 import com.wegas.core.exception.client.WegasIncompatibleType;
@@ -18,6 +17,7 @@ import com.wegas.core.persistence.variable.Beanjection;
 import com.wegas.core.persistence.variable.VariableInstance;
 import java.util.ArrayList;
 import java.util.List;
+import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 import org.eclipse.persistence.annotations.BatchFetch;
@@ -143,7 +143,7 @@ public class ChoiceInstance extends VariableInstance {
     /**
      * @deprecated
      */
-    @JsonProperty
+    @JsonbProperty
     public void setCurrentResultIndex(Integer index) {
         this.currentResultIndex = index;
     }

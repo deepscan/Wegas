@@ -7,34 +7,37 @@
  */
 package com.wegas.core.jcr.page;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.fge.jsonpatch.JsonPatchException;
-import com.wegas.core.jcr.page.Page;
-import com.wegas.core.jcr.page.Pages;
+import java.io.StringReader;
+import javax.jcr.RepositoryException;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonPatch;
+import javax.json.JsonReader;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.jcr.RepositoryException;
-import java.io.IOException;
-
 public class PageTest {
-    final static JsonNodeFactory factory = new JsonNodeFactory(false);
-    final static String pageName = "First Page";
-    final static JsonNode pageContent = factory.objectNode()
-            .put("type", "AbsoluteLayout")
-            .put("@name", pageName);
+
+    final static String PAGE_NAME = "First Page";
+    final static JsonObject pageContent = Json.createObjectBuilder()
+            .add("type", "AbsoluteLayout")
+            .add("@name", PAGE_NAME).build();
+
     private static final long GAME_MODEL_ID = -100L;
+
+    @BeforeClass
+    public void setup() {
+    }
 
     @Before
     public void before() throws RepositoryException {
         // Create
         try (final Pages pages = new Pages(GAME_MODEL_ID)) {
-            final Page page = new Page("1", pageContent.deepCopy());
+            final Page page = new Page("1", Json.createObjectBuilder(pageContent).build());
             pages.store(page);
         }
 
@@ -51,22 +54,23 @@ public class PageTest {
         }
     }
 
-
     @Test
-    public void patch() throws RepositoryException, IOException, JsonPatchException {
+    public void patch() throws RepositoryException {
         // patch the name.
         final String patchedPageName = "Patched Page";
-        final ArrayNode patch = factory.arrayNode().add(factory.objectNode()
-                .put("op", "replace")
-                .put("path", "/@name")
-                .put("value", patchedPageName)
-        );
-        try (final Pages pages = new Pages(GAME_MODEL_ID)) {
-            final Page page = pages.getPage("1");
-            Assert.assertEquals(pageName, page.getName());
-            page.patch(patch);
-            pages.store(page);
-            System.out.println(page.getName());
+        String strPatch = "[{\"op\": \"replace\", \"path\": \"/@name\", \"value\" : \"" + patchedPageName + "\"}]";
+        try (JsonReader reader = Json.createReader(new StringReader(strPatch))) {
+            JsonArray patchArray = reader.readArray();
+
+            JsonPatch patch = Json.createPatchBuilder(patchArray).build();
+
+            try (final Pages pages = new Pages(GAME_MODEL_ID)) {
+                final Page page = pages.getPage("1");
+                Assert.assertEquals(PAGE_NAME, page.getName());
+                page.patch(patch);
+                pages.store(page);
+                System.out.println(page.getName());
+            }
         }
         try (final Pages pages = new Pages(GAME_MODEL_ID)) {
             Assert.assertEquals(patchedPageName, pages.getPage("1").getName());
@@ -81,16 +85,14 @@ public class PageTest {
             final Page page = pages.getPage("1");
             Assert.assertEquals(1, pages.size());
             Assert.assertEquals(
-                    ((ObjectNode) pageContent.deepCopy())
-                            .put("@index", 0),
+                    Json.createObjectBuilder(pageContent).add("@index", 0).build(),
                     page.getContentWithMeta());
-            Assert.assertEquals(pageName, page.getName());
+            Assert.assertEquals(PAGE_NAME, page.getName());
             Assert.assertEquals(0L, (long) page.getIndex());
         }
         // Update
         try (final Pages pages = new Pages(GAME_MODEL_ID)) {
-            final ObjectNode jsonNode = pageContent.deepCopy();
-            jsonNode.put("@name", "Second Page");
+            JsonObject jsonNode = Json.createObjectBuilder().add("@name", "Second page").build();
             final Page page1 = new Page("1", jsonNode);
             pages.store(page1);
 

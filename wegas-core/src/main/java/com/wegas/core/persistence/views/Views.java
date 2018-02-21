@@ -7,16 +7,6 @@
  */
 package com.wegas.core.persistence.views;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import static com.wegas.core.security.persistence.Permission.logger;
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import javax.json.bind.config.PropertyVisibilityStrategy;
-
 /**
  * @author Francois-Xavier Aeberhard (fx at red-agent.com)
  */

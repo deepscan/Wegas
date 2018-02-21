@@ -7,7 +7,6 @@
  */
 package com.wegas.resourceManagement.persistence;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.persistence.AbstractEntity;
 import com.wegas.core.persistence.DatedEntity;
@@ -24,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 
@@ -353,7 +353,7 @@ public class Iteration extends AbstractEntity implements DatedEntity {
         return ListUtils.mapEntries(this.plannedWorkloads, new IterationPlanning.Extractor());
     }
 
-    @JsonProperty
+    @JsonbProperty
     public Map<Long, Double> getPlannedWorkloads() {
         return Collections.unmodifiableMap(this.getModifiablePlannedWorkloads());
     }
@@ -363,7 +363,7 @@ public class Iteration extends AbstractEntity implements DatedEntity {
      *
      * @param plannedWorkloads the planning
      */
-    @JsonProperty
+    @JsonbProperty
     public void setPlannedWorkloads(Map<Long, Double> plannedWorkloads) {
         this.plannedWorkloads.clear();
         for (Entry<Long, Double> entry : plannedWorkloads.entrySet()) {
@@ -433,7 +433,7 @@ public class Iteration extends AbstractEntity implements DatedEntity {
         return ListUtils.mapEntries(this.replannedWorkloads, new IterationPlanning.Extractor());
     }
 
-    @JsonProperty
+    @JsonbProperty
     public Map<Long, Double> getReplannedWorkloads() {
         return Collections.unmodifiableMap(this.getModifiableReplannedWorkloads());
     }

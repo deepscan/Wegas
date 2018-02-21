@@ -7,7 +7,7 @@
  */
 package com.wegas.core.event.client;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import javax.json.bind.annotation.JsonbProperty;
 
 /**
  *
@@ -19,7 +19,7 @@ public class DestroyedEntity {
 
     private final Long id;
 
-    @JsonProperty(value = "@class")
+    @JsonbProperty("@class")
     private final String effectiveClass;
 
     public DestroyedEntity(Long id, String klass) {

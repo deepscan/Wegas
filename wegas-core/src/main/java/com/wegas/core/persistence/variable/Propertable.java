@@ -7,14 +7,14 @@
  */
 package com.wegas.core.persistence.variable;
 
-import javax.json.bind.annotation.JsonbTransient;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wegas.core.persistence.ListUtils;
 import com.wegas.core.persistence.VariableProperty;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.json.bind.annotation.JsonbProperty;
+import javax.json.bind.annotation.JsonbTransient;
 
 /**
  *
@@ -39,7 +39,7 @@ public interface Propertable {
      *
      * @return the properties
      */
-    @JsonProperty
+    @JsonbProperty
     default public Map<String, String> getProperties() {
         return Collections.unmodifiableMap(this.getModifiableProperties());
     }
@@ -47,7 +47,7 @@ public interface Propertable {
     /**
      * @param properties the properties to set
      */
-    @JsonProperty
+    @JsonbProperty
     default public void setProperties(Map<String, String> properties) {
         this.getInternalProperties().clear();
         for (Entry<String, String> entry : properties.entrySet()) {

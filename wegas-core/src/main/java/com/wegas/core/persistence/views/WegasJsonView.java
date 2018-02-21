@@ -7,7 +7,6 @@
  */
 package com.wegas.core.persistence.views;
 
-import com.fasterxml.jackson.annotation.JacksonAnnotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -20,7 +19,6 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@JacksonAnnotation
 public @interface WegasJsonView {
 
     public Class<?> value();

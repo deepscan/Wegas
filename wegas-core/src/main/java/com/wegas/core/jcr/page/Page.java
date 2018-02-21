@@ -7,16 +7,19 @@
  */
 package com.wegas.core.jcr.page;
 
-import javax.json.bind.annotation.JsonbTransient;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.JsonPatchException;
 import com.wegas.core.Helper;
-import java.io.IOException;
+import com.wegas.core.rest.util.JsonbProvider;
+import java.io.StringReader;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonPatch;
+import javax.json.JsonReader;
+import javax.json.JsonString;
+import javax.json.JsonValue;
+import javax.json.bind.Jsonb;
+import javax.json.bind.annotation.JsonbTransient;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -30,11 +33,11 @@ public class Page {
 
     static final protected String NAME_KEY = "pageName";
 
-    private static ObjectMapper mapper = null;
+    private static Jsonb jsonb = null;
 
     private String id;
 
-    private JsonNode content;
+    private JsonObject content;
 
     private String name;
 
@@ -44,7 +47,7 @@ public class Page {
      * @param id
      * @param content
      */
-    public Page(String id, JsonNode content) {
+    public Page(String id, JsonObject content) {
         this.id = id;
         this.setContent(content);
     }
@@ -53,7 +56,6 @@ public class Page {
      * @param n
      *
      * @throws RepositoryException
-     * @throws IOException
      */
     public Page(Node n) throws RepositoryException {
         this.id = n.getName();
@@ -89,46 +91,42 @@ public class Page {
     /**
      * @return page content as a JSONNode
      */
-    public JsonNode getContent() {
+    public JsonObject getContent() {
         return content;
     }
 
-    public JsonNode getContentWithMeta() {
-        ObjectNode content = this.content.deepCopy();
-        content.put("@name", this.name);
-        content.put("@index", this.index);
-        return content;
+    public JsonObject getContentWithMeta() {
+        return Json.createObjectBuilder(content)
+                .add("@name", this.name)
+                .add("@index", this.index).build();
     }
 
     /**
      * @param content
      */
     @JsonbTransient
-    public final void setContent(JsonNode content) {
+    public final void setContent(JsonObject content) {
         this.content = content;
         this.extractAttrs();
     }
 
-    private static synchronized ObjectMapper getMapper() {
-        if (Page.mapper == null) {
-            Page.mapper = new ObjectMapper();
+    private static synchronized Jsonb getJsonb() {
+        if (Page.jsonb == null) {
+            Page.jsonb = JsonbProvider.getMapper(null);
         }
-        return Page.mapper;
+        return Page.jsonb;
     }
 
     /**
      * @param content
      *
-     * @throws IOException
      */
     @JsonbTransient
     public final void setContent(String content) {
-        try {
-            this.content = getMapper().readTree(content);
-            this.extractAttrs();
-        } catch (IOException e) {
-
+        try (JsonReader reader = Json.createReader(new StringReader(content))) {
+            this.content = reader.readObject();
         }
+        this.extractAttrs();
     }
 
     /**
@@ -146,51 +144,64 @@ public class Page {
     }
 
     /**
-     *
+     * if @name or @index exists in content, remove them
      */
     @JsonbTransient
     private void extractAttrs() {
-        JsonNode node;
-        node = this.content.path("@name");
-        if (!node.isMissingNode()) {
-            this.name = node.textValue();
-            ((ObjectNode) this.content).remove("@name");
+
+        try {
+            String v = this.content.getString("@name");
+            this.name = v;
+            this.content.remove("@name");
+        } catch (Exception e) {
+            // no name, ok
         }
-        node = this.content.path("@index");
-        if (!node.isMissingNode()) {
-            this.index = node.intValue();
-            ((ObjectNode) this.content).remove("@index");
+        try {
+            int i = this.content.getInt("@index");
+            this.index = i;
+            this.content.remove("@index");
+        } catch (Exception e) {
+            // no index, ok
         }
+
     }
 
     /**
      * @param patch RFC6902: patch Array
      */
-    public void patch(JsonNode patch) throws IOException, JsonPatchException {
-        final JsonNode target = JsonPatch.fromJson(patch).apply(this.getContentWithMeta());
-        logger.info("INPUT\n" + this.content.toString() + "\nPATCH\n" + patch + "\nRESULT\n" + target.asText());
-        this.setContent(target);
+    public void patch(JsonPatch patch) {
+
+        JsonObject patched = patch.apply(this.getContentWithMeta());
+        logger.info("INPUT\n" + this.content.toString() + "\nPATCH\n" + patch + "\nRESULT\n" + patched);
+        this.setContent(patched);
     }
 
     //@TODO : tokenizer
     /**
      * @param jsonPath
      *
-     * @return  some extracted node as text
+     * @return some extracted node as text
      */
     public String extract(String jsonPath) {
-        JsonNode node = this.content;
+        JsonValue value = this.content.getValue(jsonPath);
+        if (value instanceof JsonString) {
+            return ((JsonString) value).getString();
+        } else {
+            return null;
+        }
+        /*
         final String[] xpaths = jsonPath.trim().split("\\.|\\[|\\]");
         for (String xpath : xpaths) {
-            if (!xpath.equals("")) {
-                if (node.isArray() && xpath.matches("[0-9]+")) {
-                    node = node.path(Integer.parseInt(xpath));
-                } else {
-                    node = node.path(xpath);
-                }
-            }
+        if (!xpath.equals("")) {
+        if (node.isArray() && xpath.matches("[0-9]+")) {
+        node = node.path(Integer.parseInt(xpath));
+        } else {
+        node = node.path(xpath);
+        }
+        }
         }
         return node.asText();
+         */
     }
 
     public Integer getIndex() {

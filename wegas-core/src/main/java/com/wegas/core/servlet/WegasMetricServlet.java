@@ -12,6 +12,7 @@ import javax.servlet.annotation.WebServlet;
 
 @WebServlet(name = "metrics-startup", loadOnStartup = 2, urlPatterns = "/metrics")
 public class WegasMetricServlet extends MetricsServlet {
+
     private static final long serialVersionUID = -6262523517953867043L;
 
 }

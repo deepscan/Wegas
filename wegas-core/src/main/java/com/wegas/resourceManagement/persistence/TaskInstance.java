@@ -7,7 +7,6 @@
  */
 package com.wegas.resourceManagement.persistence;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wegas.core.exception.client.WegasIncompatibleType;
 import com.wegas.core.exception.client.WegasOutOfBoundException;
 import com.wegas.core.persistence.AbstractEntity;
@@ -20,6 +19,7 @@ import com.wegas.resourceManagement.ejb.IterationFacade;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
@@ -110,7 +110,7 @@ public class TaskInstance extends VariableInstance implements Propertable {
      * compatibility
      * @param duration the duration to set
      */
-    @JsonProperty
+    @JsonbProperty
     public void setDuration(double duration) {
         if (duration < 0.0) {
             throw new WegasOutOfBoundException(0.0, null, duration, "duration", "duration");

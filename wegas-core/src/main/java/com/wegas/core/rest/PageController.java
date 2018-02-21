@@ -7,10 +7,6 @@
  */
 package com.wegas.core.rest;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.fge.jsonpatch.JsonPatchException;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ILock;
 import com.wegas.core.Helper;
@@ -27,6 +23,10 @@ import java.util.Map.Entry;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.jcr.RepositoryException;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonPatch;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -158,7 +158,7 @@ public class PageController {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response setPage(@PathParam("gameModelId") Long gameModelId,
             @PathParam("pageId") String pageId,
-            JsonNode content) throws RepositoryException, IOException {
+            JsonObject content) throws RepositoryException, IOException {
 
         GameModel gm = gameModelFacade.find(gameModelId);
         requestManager.assertUpdateRight(gm);
@@ -228,7 +228,7 @@ public class PageController {
      * @throws IOException
      */
     @PUT
-    public Response createPage(@PathParam("gameModelId") Long gameModelId, JsonNode content)
+    public Response createPage(@PathParam("gameModelId") Long gameModelId, JsonObject content)
             throws RepositoryException, IOException {
         return createPage(gameModelId, content, null);
     }
@@ -245,7 +245,7 @@ public class PageController {
      * @throws javax.jcr.RepositoryException
      * @throws java.io.IOException
      */
-    private Response createPage(Long gameModelId, JsonNode content, String id)
+    private Response createPage(Long gameModelId, JsonObject content, String id)
             throws RepositoryException, IOException {
 
         GameModel gm = gameModelFacade.find(gameModelId);
@@ -277,7 +277,7 @@ public class PageController {
      * @param gameModelId
      * @param pageId
      *
-     * @return strange http response which contains strange stuff {@link #createPage(java.lang.Long, com.fasterxml.jackson.databind.JsonNode) }
+     * @return strange http response which contains strange stuff {@link #createPage(java.lang.Long, JsonObject) }
      *
      * @throws RepositoryException
      * @throws IOException
@@ -293,14 +293,15 @@ public class PageController {
                 if (oldPage == null) {
                     throw WegasErrorMessage.error("Attempt to duplicate an inexistant page");
                 }
-                return this.createPage(gameModelId, oldPage.getContent().deepCopy(), oldPage.getId()); // Override admin page
+                JsonObject copy = Json.createObjectBuilder(oldPage.getContent()).build();
+                return this.createPage(gameModelId, copy, oldPage.getId()); // Override admin page
             }
-            final ObjectNode newContent = oldPage.getContent().deepCopy();
+            JsonObjectBuilder builder = Json.createObjectBuilder(oldPage.getContent());
             if (!Helper.isNullOrEmpty(oldPage.getName())) {
-                newContent.put("@name", oldPage.getName() + "-copy");
+                builder.add("@name", oldPage.getName() + "-copy");
             }
 
-            return this.createPage(gameModelId, newContent, null);
+            return this.createPage(gameModelId, builder.build(), null);
         }
     }
 
@@ -318,14 +319,14 @@ public class PageController {
      * @throws JSONException
      */
     @POST
-    public Response addPages(@PathParam("gameModelId") Long gameModelId, Map<String, JsonNode> pageMap)
+    public Response addPages(@PathParam("gameModelId") Long gameModelId, Map<String, JsonObject> pageMap)
             throws RepositoryException {
 
         GameModel gm = gameModelFacade.find(gameModelId);
         requestManager.assertUpdateRight(gm);
 
         try (final Pages pages = new Pages(gameModelId)) {
-            for (Entry<String, JsonNode> p : pageMap.entrySet()) {
+            for (Entry<String, JsonObject> p : pageMap.entrySet()) {
                 pages.store(new Page(p.getKey(), p.getValue()));
             }
         }
@@ -391,7 +392,6 @@ public class PageController {
      * @return The new patched page
      *
      * @throws RepositoryException
-     * @throws JSONException
      * @throws IOException
      */
     @PUT
@@ -399,7 +399,7 @@ public class PageController {
     @Consumes(MediaType.TEXT_PLAIN)
     public Response patch(@PathParam("gameModelId") Long gameModelId,
             @PathParam("pageId") String pageId,
-            String patch) throws RepositoryException, IOException, JsonPatchException {
+            JsonPatch patch) throws RepositoryException, IOException {
 
         GameModel gm = gameModelFacade.find(gameModelId);
         requestManager.assertUpdateRight(gm);
@@ -410,8 +410,7 @@ public class PageController {
                 return Response.status(Response.Status.NOT_FOUND).header("Page", pageId).build();
             }
 
-            JsonNode patches = (new ObjectMapper()).readTree(patch);
-            page.patch(patches);
+            page.patch(patch);
             pages.store(page);
 
             websocketFacade.pageUpdate(gameModelId, pageId, requestManager.getSocketId());

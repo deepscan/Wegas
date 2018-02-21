@@ -7,13 +7,9 @@
  */
 package com.wegas.core.rest.util;
 
-import com.wegas.core.persistence.views.Views;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.wegas.core.ejb.RequestFacade;
 import com.wegas.core.ejb.RequestManager;
 import com.wegas.core.persistence.views.Views;
-import com.wegas.core.rest.util.RequestIdentifierGenerator;
 import com.wegas.core.persistence.views.Views.WegasView;
 import com.wegas.core.security.ejb.UserFacade;
 import io.prometheus.client.Counter;
@@ -25,17 +21,14 @@ import javax.ejb.EJB;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.PreMatching;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.Provider;
-import org.glassfish.jersey.jackson.internal.jackson.jaxrs.cfg.EndpointConfigBase;
-import org.glassfish.jersey.jackson.internal.jackson.jaxrs.cfg.ObjectWriterModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
  * This filters takes the first path segment (first line of code) and uses it as
- * the current View in for jackson serialization.
+ * the current View in for json serialization.
  *
  * @see com.wegas.core.ejb.RequestManager . Available view are
  * "Public"(default), "Export", "Editor", "Extended", "Instance"
@@ -157,19 +150,4 @@ public class ViewRequestFilter implements ContainerRequestFilter {
                 return Views.Public.class;
         }
     }
-
-    private static class JsonViewModifier extends ObjectWriterModifier {
-
-        Class<?> view;
-
-        public JsonViewModifier(Class<?> view) {
-            this.view = view;
-        }
-
-        @Override
-        public ObjectWriter modify(EndpointConfigBase<?> ecb, MultivaluedMap<String, Object> mm, Object o, ObjectWriter writer, JsonGenerator jg) throws IOException {
-            return writer.withView(view);
-        }
-    }
-
 }

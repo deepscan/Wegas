@@ -15,15 +15,14 @@ import com.wegas.core.persistence.game.Game;
 import com.wegas.core.persistence.game.GameModel;
 import com.wegas.core.persistence.game.Player;
 import com.wegas.core.rest.ComboController;
-
-import javax.ejb.EJB;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.context.FacesContext;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import javax.ejb.EJB;
+import javax.faces.annotation.ManagedProperty;
+import javax.faces.context.FacesContext;
 
 /**
  * @author Francois-Xavier Aeberhard (fx at red-agent.com)

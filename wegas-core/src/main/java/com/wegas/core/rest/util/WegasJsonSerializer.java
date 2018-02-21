@@ -7,6 +7,7 @@ package com.wegas.core.rest.util;
 
 import com.wegas.core.exception.client.WegasErrorMessage;
 import com.wegas.core.persistence.JsonSerializable;
+import com.wegas.core.persistence.WegasJsonTypeName;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +20,6 @@ import javax.json.stream.JsonParser;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.wegas.core.persistence.WegasJsonTypeName;
 
 /**
  *
@@ -32,13 +32,16 @@ public class WegasJsonSerializer implements JsonbDeserializer<JsonSerializable> 
     private static final Map<String, Class<? extends JsonSerializable>> classesMap = new HashMap<>();
 
     public WegasJsonSerializer() {
-        logger.error("CREATE PET DESERIALIZER");
+        logger.error("CREATE WEGAS DESERIALIZER");
     }
 
-    private static final Reflections reflections;
+    private static Reflections _reflections;
 
-    static {
-        reflections = new Reflections("com.wegas");
+    private static synchronized Reflections getReflections() {
+        if (_reflections == null) {
+            _reflections = new Reflections("com.wegas");
+        }
+        return _reflections;
     }
 
     private boolean contains(String[] values, String needle) {
@@ -67,7 +70,7 @@ public class WegasJsonSerializer implements JsonbDeserializer<JsonSerializable> 
 
                 if (theClass == null) {
 
-                    Optional<Class<?>> findAnnotated = reflections.getTypesAnnotatedWith(WegasJsonTypeName.class).stream().filter(cl -> contains(cl.getAnnotation(WegasJsonTypeName.class).value(), strKlass)).findFirst();
+                    Optional<Class<?>> findAnnotated = getReflections().getTypesAnnotatedWith(WegasJsonTypeName.class).stream().filter(cl -> contains(cl.getAnnotation(WegasJsonTypeName.class).value(), strKlass)).findFirst();
                     if (findAnnotated.isPresent()) {
                         if (JsonSerializable.class.isAssignableFrom(findAnnotated.get())) {
                             logger.error("ANNOTATION REFLECTION -> {}", findAnnotated);
@@ -78,7 +81,7 @@ public class WegasJsonSerializer implements JsonbDeserializer<JsonSerializable> 
                     }
 
                     if (theClass == null) {
-                        Optional<Class<? extends JsonSerializable>> eClass = reflections.getSubTypesOf(JsonSerializable.class).stream().filter(cl -> cl.getSimpleName().equals(strKlass)).findFirst();
+                        Optional<Class<? extends JsonSerializable>> eClass = getReflections().getSubTypesOf(JsonSerializable.class).stream().filter(cl -> cl.getSimpleName().equals(strKlass)).findFirst();
                         if (eClass.isPresent()) {
                             logger.error("REFLECTION -> {}", eClass);
                             theClass = eClass.get();
